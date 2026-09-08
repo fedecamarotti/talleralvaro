@@ -10,6 +10,7 @@
   --text:#f2f2f0; --text2:#a3a3ab; --muted:#6f6f78;
   --accent:#4f8cff; --accent-bg:rgba(79,140,255,.12);
   --danger:#e2504a; --danger-bg:rgba(226,80,74,.14);
+  --success:#3fae6a; --success-bg:rgba(63,174,106,.14);
   --radius:12px;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -28,7 +29,7 @@ input, textarea{
   transition:border-color .15s;
 }
 input:focus, textarea:focus{border-color:var(--accent);}
-textarea{resize:vertical; min-height:70px;}
+textarea{resize:vertical; min-height:60px;}
 label{display:block; font-size:12px; color:var(--muted); margin:14px 0 6px;}
 label:first-child{margin-top:0;}
 button{
@@ -44,6 +45,7 @@ button:hover{border-color:#3a3a42;}
 .btn-danger:hover{background:var(--danger-bg);}
 .btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
 .btn-block{width:100%;}
+.btn-ghost{background:transparent; border:none; color:var(--accent); padding:6px 0; font-size:13.5px;}
 
 /* login */
 #loginScreen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
@@ -84,6 +86,11 @@ header .actions{display:flex; gap:8px;}
   border-radius:8px; white-space:nowrap; font-weight:500;
 }
 .empty{color:var(--muted); font-size:14px; text-align:center; padding:40px 10px;}
+.wa-btn{
+  width:34px; height:34px; border-radius:50%; background:var(--success-bg); color:var(--success);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; border:none; font-size:16px;
+}
+.wa-btn:hover{background:rgba(63,174,106,.25);}
 
 /* ficha */
 #backBtn{margin-bottom:16px; color:var(--text2); background:transparent; border:none; padding:4px 0;}
@@ -112,8 +119,9 @@ header .actions{display:flex; gap:8px;}
 .visit-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
 .visit-date{font-size:12.5px; color:var(--text2);}
 .visit-km{font-size:11.5px; background:var(--accent-bg); color:var(--accent); padding:2px 8px; border-radius:8px; margin-top:6px; display:inline-block;}
-.visit-desc{font-size:14px; margin-bottom:10px; line-height:1.5;}
-.visit-nums{display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; margin-bottom:8px;}
+.detail-row{display:flex; justify-content:space-between; font-size:13.5px; padding:5px 0; color:var(--text);}
+.detail-row .d{color:var(--text2);}
+.visit-nums{display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; margin:8px 0;}
 .visit-nums div{display:flex; justify-content:space-between; color:var(--text2);}
 .visit-nums div span:last-child{color:var(--text);}
 .visit-total{
@@ -123,7 +131,7 @@ header .actions{display:flex; gap:8px;}
 .visit-pay{
   border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; font-size:12.5px;
 }
-.visit-pay.paid{background:rgba(63,174,106,.12); color:#3fae6a;}
+.visit-pay.paid{background:var(--success-bg); color:var(--success);}
 .visit-pay.debt{background:var(--danger-bg); color:var(--danger);}
 
 /* modal */
@@ -143,6 +151,21 @@ header .actions{display:flex; gap:8px;}
 .totalPreview{
   background:var(--accent-bg); color:var(--accent); border-radius:10px; padding:10px 13px;
   font-size:14px; font-weight:500; margin-top:14px; display:flex; justify-content:space-between;
+}
+.input-check-wrap{position:relative;}
+.input-check-wrap input{padding-right:40px;}
+.check-icon{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:15px; font-weight:700;
+}
+.check-icon.ok{color:var(--success);}
+.check-icon.bad{color:var(--danger);}
+.detail-item{
+  background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px;
+  position:relative;
+}
+.detail-item .rm{
+  position:absolute; top:8px; right:8px; background:transparent; border:none; color:var(--muted);
+  font-size:13px; padding:2px 6px;
 }
 </style>
 </head>
@@ -210,6 +233,7 @@ let currentClientId = null;
 let currentVisits = [];
 let deudoresOnly = false;
 let unsubClients = null, unsubVisits = null;
+let detailCount = 0;
 
 const $ = id => document.getElementById(id);
 const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -223,6 +247,44 @@ function fmtDate(iso){
 function initials(nombre, apellido){
   return ((nombre[0]||'')+(apellido[0]||'')).toUpperCase();
 }
+
+/* ---------- TELÉFONO ---------- */
+function cleanPhone(raw){
+  let d = (raw||'').replace(/\D/g,'');
+  if(d.startsWith('0')) d = d.slice(1);
+  d = d.replace(/^(\d{2,4})15/, '$1');
+  return d;
+}
+function isValidPhone(raw){
+  const d = cleanPhone(raw);
+  return d.length >= 8 && d.length <= 11;
+}
+function waLink(raw){
+  return `https://wa.me/549${cleanPhone(raw)}`;
+}
+
+/* ---------- INPUTS CON FORMATO ---------- */
+function attachMoneyInput(el, initial){
+  el.dataset.raw = initial ? String(Math.round(initial)) : '';
+  el.value = initial ? money(initial) : '';
+  el.addEventListener('input', () => {
+    const digits = el.value.replace(/\D/g,'');
+    el.dataset.raw = digits;
+    el.value = digits ? money(parseInt(digits)) : '';
+  });
+}
+function moneyValue(el){ return parseInt(el.dataset.raw||'0')||0; }
+
+function attachKmInput(el, initial){
+  el.dataset.raw = initial ? String(Math.round(initial)) : '';
+  el.value = initial ? parseInt(initial).toLocaleString('es-AR') : '';
+  el.addEventListener('input', () => {
+    const digits = el.value.replace(/\D/g,'');
+    el.dataset.raw = digits;
+    el.value = digits ? parseInt(digits).toLocaleString('es-AR') : '';
+  });
+}
+function kmValue(el){ return parseInt(el.dataset.raw||'0')||0; }
 
 /* ---------- AUTH ---------- */
 $('loginBtn').onclick = () => {
@@ -280,9 +342,13 @@ function renderClientList(){
         <div class="sub">${c.auto||''}${c.patente ? ' · '+c.patente : ''}</div>
       </div>
       ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+      ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3z"/></svg></button>` : ''}
     </div>`).join('');
   el.querySelectorAll('.client-card').forEach(card => {
-    card.onclick = () => openFicha(card.dataset.id);
+    card.onclick = (e) => { if(e.target.closest('.wa-btn')) return; openFicha(card.dataset.id); };
+  });
+  el.querySelectorAll('.wa-btn').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); window.open(waLink(btn.dataset.wa), '_blank'); };
   });
 }
 
@@ -326,6 +392,7 @@ function renderClientCard(){
           <div class="phone">${c.telefono||''}</div>
         </div>
         ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+        ${isValidPhone(c.telefono) ? `<button class="wa-btn" id="waFichaBtn" aria-label="Abrir WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3z"/></svg></button>` : ''}
         <div class="card-actions">
           <button class="btn-icon" id="editClientBtn">Editar</button>
           <button class="btn-icon btn-danger" id="delClientBtn">Eliminar</button>
@@ -338,6 +405,8 @@ function renderClientCard(){
     </div>`;
   $('editClientBtn').onclick = () => openClientModal(c);
   $('delClientBtn').onclick = () => confirmDelete('cliente', () => deleteClient(c.id));
+  const waBtn = $('waFichaBtn');
+  if(waBtn) waBtn.onclick = () => window.open(waLink(c.telefono), '_blank');
 }
 
 function renderVisits(){
@@ -358,9 +427,10 @@ function renderVisits(){
           <button class="btn-icon btn-danger" data-del="${v.id}">Eliminar</button>
         </div>
       </div>
-      <div class="visit-desc">${v.descripcion||''}</div>
+      ${(v.detalles||[]).map(d => `
+        <div class="detail-row"><span class="d">${d.descripcion||''}</span><span>${money(d.repuestos)}</span></div>
+      `).join('')}
       <div class="visit-nums">
-        <div><span>Repuestos</span><span>${money(v.repuestos)}</span></div>
         <div><span>Mano de obra</span><span>${money(v.manoObra)}</span></div>
       </div>
       <div class="visit-total"><span>Total</span><span>${money(v.total)}</span></div>
@@ -381,32 +451,49 @@ function openClientModal(c){
       <h2>${c ? 'Editar cliente' : 'Nuevo cliente'}</h2>
       <label>Nombre</label><input id="mNombre" value="${c?.nombre||''}">
       <label>Apellido</label><input id="mApellido" value="${c?.apellido||''}">
-      <label>Teléfono</label><input id="mTelefono" value="${c?.telefono||''}">
+      <label>Teléfono</label>
+      <div class="input-check-wrap">
+        <input id="mTelefono" value="${c?.telefono||''}" placeholder="Ej: 1156637845">
+        <span class="check-icon" id="mTelefonoCheck"></span>
+      </div>
       <label>Auto</label><input id="mAuto" value="${c?.auto||''}">
-      <label>Patente</label><input id="mPatente" value="${c?.patente||''}">
+      <label>Patente</label><input id="mPatente" value="${(c?.patente||'').toUpperCase()}">
       <p class="error" id="mError"></p>
       <div class="modal-actions">
         <button id="mCancel">Cancelar</button>
         <button id="mSave" class="btn-primary">Guardar</button>
       </div>
     </div></div>`;
+  const telInput = $('mTelefono'), telCheck = $('mTelefonoCheck');
+  const updateTelCheck = () => {
+    if(!telInput.value.trim()){ telCheck.textContent = ''; return; }
+    if(isValidPhone(telInput.value)){ telCheck.textContent = '✓'; telCheck.className = 'check-icon ok'; }
+    else{ telCheck.textContent = '✕'; telCheck.className = 'check-icon bad'; }
+  };
+  telInput.addEventListener('input', updateTelCheck);
+  updateTelCheck();
+  const patInput = $('mPatente');
+  patInput.addEventListener('input', () => {
+    const pos = patInput.selectionStart;
+    patInput.value = patInput.value.toUpperCase();
+    patInput.setSelectionRange(pos, pos);
+  });
   $('mCancel').onclick = closeModal;
   $('mSave').onclick = async () => {
     const nombre = $('mNombre').value.trim(), apellido = $('mApellido').value.trim();
     if(!nombre || !apellido){ $('mError').textContent = 'Completá nombre y apellido.'; return; }
     const data = {
       nombre, apellido,
-      telefono: $('mTelefono').value.trim(),
+      telefono: telInput.value.trim(),
       auto: $('mAuto').value.trim(),
-      patente: $('mPatente').value.trim().toUpperCase()
+      patente: patInput.value.trim().toUpperCase()
     };
     if(c){
       await db.collection('clientes').doc(c.id).update(data);
     } else {
       data.totalDebe = 0;
       data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      const ref = await db.collection('clientes').add(data);
-      currentClientId = null;
+      await db.collection('clientes').add(data);
     }
     closeModal();
   };
@@ -424,44 +511,99 @@ async function deleteClient(id){
 }
 
 /* ---------- VISIT MODAL ---------- */
+function detailRowHtml(idx, desc, rep){
+  return `
+    <div class="detail-item" data-idx="${idx}">
+      <button type="button" class="rm" data-rm="${idx}">Quitar</button>
+      <label>Detalle</label><input class="detDesc" data-idx="${idx}" value="${desc||''}" placeholder="Ej: correa de distribución">
+      <label>Valor repuestos</label><input class="detRep" data-idx="${idx}" placeholder="$0">
+    </div>`;
+}
+
 function openVisitModal(v){
   const today = new Date().toISOString().slice(0,10);
+  const detalles = (v?.detalles && v.detalles.length) ? v.detalles : [{descripcion:'', repuestos:0}];
+  detailCount = detalles.length;
+
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal">
       <h2>${v ? 'Editar visita' : 'Nueva visita'}</h2>
       <label>Fecha</label><input id="vFecha" type="date" value="${v?.fecha||today}">
-      <label>Kilómetros</label><input id="vKm" type="number" inputmode="numeric" value="${v?.km||''}">
-      <label>Descripción</label><textarea id="vDesc">${v?.descripcion||''}</textarea>
-      <label>Repuestos</label><input id="vRep" type="number" inputmode="decimal" value="${v?.repuestos||''}">
-      <label>Mano de obra</label><input id="vMano" type="number" inputmode="decimal" value="${v?.manoObra||''}">
-      <label>Pagó</label><input id="vPago" type="number" inputmode="decimal" value="${v?.pago||''}">
+      <label>Kilómetros</label><input id="vKm" inputmode="numeric" placeholder="Ej: 127.000">
+      <label style="margin-top:18px;">Detalles</label>
+      <div id="detailsList"></div>
+      <button type="button" class="btn-ghost" id="addDetailBtn">+ Agregar detalle</button>
+      <label>Mano de obra</label><input id="vMano" inputmode="numeric" placeholder="$0">
       <div class="totalPreview"><span>Total</span><span id="vTotalPreview">$0</span></div>
+      <label>Pagó</label><input id="vPago" inputmode="numeric" placeholder="$0">
       <p class="error" id="vError"></p>
       <div class="modal-actions">
         <button id="vCancel">Cancelar</button>
         <button id="vSave" class="btn-primary">Guardar</button>
       </div>
     </div></div>`;
-  const updatePreview = () => {
-    const rep = parseFloat($('vRep').value)||0, mano = parseFloat($('vMano').value)||0;
-    $('vTotalPreview').textContent = money(rep+mano);
+
+  attachKmInput($('vKm'), v?.km);
+  attachMoneyInput($('vMano'), v?.manoObra);
+  attachMoneyInput($('vPago'), v?.pago);
+
+  const detailsList = $('detailsList');
+  function renderDetailRows(){
+    detailsList.innerHTML = detalles.map((d,i) => detailRowHtml(i, d.descripcion, d.repuestos)).join('');
+    detalles.forEach((d,i) => {
+      const repEl = detailsList.querySelector(`.detRep[data-idx="${i}"]`);
+      attachMoneyInput(repEl, d.repuestos);
+      repEl.addEventListener('input', updateTotal);
+      detailsList.querySelector(`.detDesc[data-idx="${i}"]`).addEventListener('input', (e) => {
+        detalles[i].descripcion = e.target.value;
+      });
+    });
+    detailsList.querySelectorAll('[data-rm]').forEach(btn => {
+      btn.onclick = () => {
+        if(detalles.length <= 1) return;
+        detalles.splice(parseInt(btn.dataset.rm), 1);
+        renderDetailRows();
+        updateTotal();
+      };
+    });
+  }
+  renderDetailRows();
+
+  $('addDetailBtn').onclick = () => {
+    detalles.push({descripcion:'', repuestos:0});
+    renderDetailRows();
+    updateTotal();
   };
-  $('vRep').oninput = updatePreview;
-  $('vMano').oninput = updatePreview;
-  updatePreview();
+
+  function updateTotal(){
+    let repTotal = 0;
+    detailsList.querySelectorAll('.detRep').forEach(el => { repTotal += moneyValue(el); });
+    const mano = moneyValue($('vMano'));
+    $('vTotalPreview').textContent = money(repTotal + mano);
+  }
+  $('vMano').addEventListener('input', updateTotal);
+  updateTotal();
+
   $('vCancel').onclick = closeModal;
   $('vSave').onclick = async () => {
     const fecha = $('vFecha').value;
     if(!fecha){ $('vError').textContent = 'Elegí una fecha.'; return; }
-    const repuestos = parseFloat($('vRep').value)||0;
-    const manoObra = parseFloat($('vMano').value)||0;
-    const pago = parseFloat($('vPago').value)||0;
-    const total = repuestos + manoObra;
+    const detallesOut = [];
+    detailsList.querySelectorAll('.detail-item').forEach(item => {
+      const idx = item.dataset.idx;
+      const desc = item.querySelector('.detDesc').value.trim();
+      const rep = moneyValue(item.querySelector('.detRep'));
+      if(desc || rep) detallesOut.push({descripcion:desc, repuestos:rep});
+    });
+    const manoObra = moneyValue($('vMano'));
+    const pago = moneyValue($('vPago'));
+    const repTotal = detallesOut.reduce((s,d) => s + (d.repuestos||0), 0);
+    const total = repTotal + manoObra;
     const debe = Math.max(0, total - pago);
     const data = {
-      fecha, km: parseInt($('vKm').value)||0,
-      descripcion: $('vDesc').value.trim(),
-      repuestos, manoObra, pago, total, debe
+      fecha, km: kmValue($('vKm')),
+      detalles: detallesOut,
+      manoObra, pago, total, debe
     };
     if(v){
       await db.collection('clientes').doc(currentClientId).collection('visitas').doc(v.id).update(data);
