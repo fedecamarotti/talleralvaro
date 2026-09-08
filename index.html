@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller Álvaro</title>
+<style>
+:root{
+  --bg:#0e0e11; --bg2:#17171c; --card:#1c1c22; --border:#2a2a31;
+  --text:#f2f2f0; --text2:#a3a3ab; --muted:#6f6f78;
+  --accent:#4f8cff; --accent-bg:rgba(79,140,255,.12);
+  --danger:#e2504a; --danger-bg:rgba(226,80,74,.14);
+  --radius:12px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--bg); color:var(--text); min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.hidden{display:none !important;}
+.wrap{max-width:640px; margin:0 auto; padding:20px 16px 80px;}
+h1{font-size:20px; font-weight:600; letter-spacing:-.01em;}
+h2{font-size:15px; font-weight:600; color:var(--text2);}
+input, textarea{
+  width:100%; background:var(--bg2); border:1px solid var(--border); color:var(--text);
+  border-radius:10px; padding:11px 13px; font-size:15px; outline:none; font-family:inherit;
+  transition:border-color .15s;
+}
+input:focus, textarea:focus{border-color:var(--accent);}
+textarea{resize:vertical; min-height:70px;}
+label{display:block; font-size:12px; color:var(--muted); margin:14px 0 6px;}
+label:first-child{margin-top:0;}
+button{
+  font-family:inherit; cursor:pointer; border-radius:10px; border:1px solid var(--border);
+  background:var(--bg2); color:var(--text); font-size:14px; padding:10px 16px;
+  transition:background .15s, border-color .15s, transform .1s;
+}
+button:active{transform:scale(.97);}
+button:hover{border-color:#3a3a42;}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:500;}
+.btn-primary:hover{background:#3f7ce0;}
+.btn-danger{color:var(--danger); border-color:var(--danger-bg);}
+.btn-danger:hover{background:var(--danger-bg);}
+.btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
+.btn-block{width:100%;}
+
+/* login */
+#loginScreen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+.login-box{width:100%; max-width:340px;}
+.login-box h1{text-align:center; margin-bottom:28px; font-size:22px;}
+.login-box input{margin-bottom:10px;}
+.error{color:var(--danger); font-size:13px; margin-top:10px; min-height:16px;}
+
+/* header */
+header{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+header .actions{display:flex; gap:8px;}
+#debtorsBtn.active{background:var(--danger-bg); border-color:var(--danger); color:var(--danger);}
+.badge{
+  display:inline-block; margin-left:6px; background:var(--danger); color:#fff;
+  font-size:11px; border-radius:9px; padding:1px 6px; min-width:16px; text-align:center;
+}
+
+/* search */
+.search-wrap{margin-bottom:14px;}
+#searchInput{background:var(--bg2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="%236f6f78" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.5" y1="10.5" x2="15" y2="15"/></svg>') no-repeat 12px center; padding-left:36px;}
+
+/* client list */
+.client-card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:13px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
+  transition:border-color .15s;
+}
+.client-card:hover{border-color:#3a3a42;}
+.avatar{
+  width:40px; height:40px; border-radius:50%; background:var(--accent-bg); color:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0;
+}
+.client-info{flex:1; min-width:0;}
+.client-info .name{font-weight:500; font-size:14.5px;}
+.client-info .sub{font-size:12.5px; color:var(--text2); margin-top:1px;}
+.debt-pill{
+  font-size:11.5px; background:var(--danger-bg); color:var(--danger); padding:3px 9px;
+  border-radius:8px; white-space:nowrap; font-weight:500;
+}
+.empty{color:var(--muted); font-size:14px; text-align:center; padding:40px 10px;}
+
+/* ficha */
+#backBtn{margin-bottom:16px; color:var(--text2); background:transparent; border:none; padding:4px 0;}
+.client-card-big{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; margin-bottom:20px;
+}
+.client-card-big .row1{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+.client-card-big .avatar{width:46px; height:46px; font-size:14px;}
+.client-card-big .name{font-weight:600; font-size:16px;}
+.client-card-big .phone{font-size:13px; color:var(--text2); margin-top:2px;}
+.client-card-big .row2{
+  border-top:1px solid var(--border); padding-top:10px; margin-top:2px;
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.field-label{font-size:11px; color:var(--muted);}
+.field-value{font-size:13.5px; margin-top:2px;}
+.card-actions{display:flex; gap:6px; margin-left:auto;}
+
+.visits-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.visit-card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px 16px; margin-bottom:12px;
+}
+.visit-card.top{border-color:var(--accent);}
+.visit-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+.visit-date{font-size:12.5px; color:var(--text2);}
+.visit-km{font-size:11.5px; background:var(--accent-bg); color:var(--accent); padding:2px 8px; border-radius:8px; margin-top:6px; display:inline-block;}
+.visit-desc{font-size:14px; margin-bottom:10px; line-height:1.5;}
+.visit-nums{display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; margin-bottom:8px;}
+.visit-nums div{display:flex; justify-content:space-between; color:var(--text2);}
+.visit-nums div span:last-child{color:var(--text);}
+.visit-total{
+  border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between;
+  font-size:14px; font-weight:500; margin-bottom:8px;
+}
+.visit-pay{
+  border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; font-size:12.5px;
+}
+.visit-pay.paid{background:rgba(63,174,106,.12); color:#3fae6a;}
+.visit-pay.debt{background:var(--danger-bg); color:var(--danger);}
+
+/* modal */
+.modal-bg{
+  position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:flex-end;
+  justify-content:center; z-index:50;
+}
+@media(min-width:520px){.modal-bg{align-items:center;}}
+.modal{
+  background:var(--bg2); border:1px solid var(--border); border-radius:16px 16px 0 0;
+  width:100%; max-width:480px; max-height:88vh; overflow-y:auto; padding:20px 20px 24px;
+}
+@media(min-width:520px){.modal{border-radius:16px;}}
+.modal h2{color:var(--text); font-size:17px; margin-bottom:16px;}
+.modal-actions{display:flex; gap:10px; margin-top:20px;}
+.modal-actions button{flex:1;}
+.totalPreview{
+  background:var(--accent-bg); color:var(--accent); border-radius:10px; padding:10px 13px;
+  font-size:14px; font-weight:500; margin-top:14px; display:flex; justify-content:space-between;
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="screen">
+  <div class="login-box">
+    <h1>Taller Álvaro</h1>
+    <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
+    <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <button id="loginBtn" class="btn-primary btn-block">Ingresar</button>
+    <p class="error" id="loginError"></p>
+  </div>
+</div>
+
+<div id="mainScreen" class="screen hidden">
+  <div class="wrap">
+    <header>
+      <h1>Taller</h1>
+      <div class="actions">
+        <button id="debtorsBtn">Deudores<span class="badge hidden" id="debtorsCount">0</span></button>
+        <button id="logoutBtn" class="btn-icon">Salir</button>
+      </div>
+    </header>
+    <div class="search-wrap">
+      <input id="searchInput" placeholder="Buscar por nombre o apellido">
+    </div>
+    <button id="newClientBtn" class="btn-primary btn-block" style="margin-bottom:16px;">+ Nuevo cliente</button>
+    <div id="clientList"></div>
+  </div>
+</div>
+
+<div id="fichaScreen" class="screen hidden">
+  <div class="wrap">
+    <button id="backBtn">← Volver</button>
+    <div id="clientCard"></div>
+    <div class="visits-header">
+      <h2>HISTORIAL DE VISITAS</h2>
+      <button id="newVisitBtn" class="btn-primary">+ Nueva visita</button>
+    </div>
+    <div id="visitsList"></div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBjxBmNOL72N2r4QzlT6MQUNooNvEivFss",
+  authDomain: "talleralvaro.firebaseapp.com",
+  projectId: "talleralvaro",
+  storageBucket: "talleralvaro.firebasestorage.app",
+  messagingSenderId: "951924407222",
+  appId: "1:951924407222:web:1661b2d0e482c167a1df17"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let allClients = [];
+let currentClientId = null;
+let currentVisits = [];
+let deudoresOnly = false;
+let unsubClients = null, unsubVisits = null;
+
+const $ = id => document.getElementById(id);
+const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const money = n => '$' + Math.round(n||0).toLocaleString('es-AR');
+const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fmtDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
+}
+function initials(nombre, apellido){
+  return ((nombre[0]||'')+(apellido[0]||'')).toUpperCase();
+}
+
+/* ---------- AUTH ---------- */
+$('loginBtn').onclick = () => {
+  $('loginError').textContent = '';
+  auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value)
+    .catch(err => { $('loginError').textContent = 'Email o contraseña incorrectos.'; });
+};
+$('logoutBtn').onclick = () => auth.signOut();
+
+auth.onAuthStateChanged(user => {
+  if(user){
+    $('loginScreen').classList.add('hidden');
+    $('mainScreen').classList.remove('hidden');
+    listenClients();
+  } else {
+    $('mainScreen').classList.add('hidden');
+    $('fichaScreen').classList.add('hidden');
+    $('loginScreen').classList.remove('hidden');
+    if(unsubClients) unsubClients();
+    if(unsubVisits) unsubVisits();
+  }
+});
+
+/* ---------- CLIENTS ---------- */
+function listenClients(){
+  unsubClients = db.collection('clientes').onSnapshot(snap => {
+    allClients = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderClientList();
+    if(currentClientId) renderClientCard();
+  });
+}
+
+function renderClientList(){
+  const q = norm($('searchInput').value);
+  let list = allClients;
+  if(deudoresOnly) list = list.filter(c => (c.totalDebe||0) > 0);
+  if(q) list = list.filter(c => norm(c.nombre+' '+c.apellido).includes(q));
+  list = list.slice().sort((a,b) => (a.apellido||'').localeCompare(b.apellido||''));
+
+  const debtCount = allClients.filter(c => (c.totalDebe||0) > 0).length;
+  const badge = $('debtorsCount');
+  if(debtCount > 0){ badge.textContent = debtCount; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+
+  const el = $('clientList');
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty">${deudoresOnly ? 'No hay clientes con deuda.' : 'No se encontraron clientes.'}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="client-card" data-id="${c.id}">
+      <div class="avatar">${initials(c.nombre||'', c.apellido||'')}</div>
+      <div class="client-info">
+        <div class="name">${c.nombre} ${c.apellido}</div>
+        <div class="sub">${c.auto||''}${c.patente ? ' · '+c.patente : ''}</div>
+      </div>
+      ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+    </div>`).join('');
+  el.querySelectorAll('.client-card').forEach(card => {
+    card.onclick = () => openFicha(card.dataset.id);
+  });
+}
+
+$('searchInput').oninput = renderClientList;
+$('debtorsBtn').onclick = () => {
+  deudoresOnly = !deudoresOnly;
+  $('debtorsBtn').classList.toggle('active', deudoresOnly);
+  renderClientList();
+};
+$('newClientBtn').onclick = () => openClientModal(null);
+$('backBtn').onclick = () => {
+  currentClientId = null;
+  if(unsubVisits) unsubVisits();
+  $('fichaScreen').classList.add('hidden');
+  $('mainScreen').classList.remove('hidden');
+};
+
+/* ---------- FICHA ---------- */
+function openFicha(id){
+  currentClientId = id;
+  $('mainScreen').classList.add('hidden');
+  $('fichaScreen').classList.remove('hidden');
+  renderClientCard();
+  if(unsubVisits) unsubVisits();
+  unsubVisits = db.collection('clientes').doc(id).collection('visitas')
+    .orderBy('fecha','desc').onSnapshot(snap => {
+      currentVisits = snap.docs.map(d => ({id:d.id, ...d.data()}));
+      renderVisits();
+    });
+}
+
+function renderClientCard(){
+  const c = allClients.find(x => x.id === currentClientId);
+  if(!c) return;
+  $('clientCard').innerHTML = `
+    <div class="client-card-big">
+      <div class="row1">
+        <div class="avatar">${initials(c.nombre||'', c.apellido||'')}</div>
+        <div style="flex:1;">
+          <div class="name">${c.nombre} ${c.apellido}</div>
+          <div class="phone">${c.telefono||''}</div>
+        </div>
+        ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+        <div class="card-actions">
+          <button class="btn-icon" id="editClientBtn">Editar</button>
+          <button class="btn-icon btn-danger" id="delClientBtn">Eliminar</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div><div class="field-label">Auto</div><div class="field-value">${c.auto||'—'}</div></div>
+        <div><div class="field-label">Patente</div><div class="field-value">${c.patente||'—'}</div></div>
+      </div>
+    </div>`;
+  $('editClientBtn').onclick = () => openClientModal(c);
+  $('delClientBtn').onclick = () => confirmDelete('cliente', () => deleteClient(c.id));
+}
+
+function renderVisits(){
+  const el = $('visitsList');
+  if(currentVisits.length === 0){
+    el.innerHTML = `<div class="empty">Todavía no hay visitas cargadas.</div>`;
+    return;
+  }
+  el.innerHTML = currentVisits.map((v,i) => `
+    <div class="visit-card ${i===0?'top':''}">
+      <div class="visit-top">
+        <div>
+          <div class="visit-date">${fmtDate(v.fecha)}</div>
+          ${v.km ? `<div class="visit-km">${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon" data-edit="${v.id}">Editar</button>
+          <button class="btn-icon btn-danger" data-del="${v.id}">Eliminar</button>
+        </div>
+      </div>
+      <div class="visit-desc">${v.descripcion||''}</div>
+      <div class="visit-nums">
+        <div><span>Repuestos</span><span>${money(v.repuestos)}</span></div>
+        <div><span>Mano de obra</span><span>${money(v.manoObra)}</span></div>
+      </div>
+      <div class="visit-total"><span>Total</span><span>${money(v.total)}</span></div>
+      <div class="visit-pay ${v.debe > 0 ? 'debt' : 'paid'}">
+        <span>Pagó ${money(v.pago)}${v.debe > 0 ? ' · debe' : ''}</span>
+        ${v.debe > 0 ? `<span>${money(v.debe)}</span>` : `<span>Pagado</span>`}
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openVisitModal(currentVisits.find(v => v.id === b.dataset.edit)));
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => confirmDelete('visita', () => deleteVisit(b.dataset.del)));
+}
+$('newVisitBtn').onclick = () => openVisitModal(null);
+
+/* ---------- CLIENT MODAL ---------- */
+function openClientModal(c){
+  $('modalRoot').innerHTML = `
+    <div class="modal-bg"><div class="modal">
+      <h2>${c ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+      <label>Nombre</label><input id="mNombre" value="${c?.nombre||''}">
+      <label>Apellido</label><input id="mApellido" value="${c?.apellido||''}">
+      <label>Teléfono</label><input id="mTelefono" value="${c?.telefono||''}">
+      <label>Auto</label><input id="mAuto" value="${c?.auto||''}">
+      <label>Patente</label><input id="mPatente" value="${c?.patente||''}">
+      <p class="error" id="mError"></p>
+      <div class="modal-actions">
+        <button id="mCancel">Cancelar</button>
+        <button id="mSave" class="btn-primary">Guardar</button>
+      </div>
+    </div></div>`;
+  $('mCancel').onclick = closeModal;
+  $('mSave').onclick = async () => {
+    const nombre = $('mNombre').value.trim(), apellido = $('mApellido').value.trim();
+    if(!nombre || !apellido){ $('mError').textContent = 'Completá nombre y apellido.'; return; }
+    const data = {
+      nombre, apellido,
+      telefono: $('mTelefono').value.trim(),
+      auto: $('mAuto').value.trim(),
+      patente: $('mPatente').value.trim().toUpperCase()
+    };
+    if(c){
+      await db.collection('clientes').doc(c.id).update(data);
+    } else {
+      data.totalDebe = 0;
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      const ref = await db.collection('clientes').add(data);
+      currentClientId = null;
+    }
+    closeModal();
+  };
+}
+
+async function deleteClient(id){
+  const visitasSnap = await db.collection('clientes').doc(id).collection('visitas').get();
+  const batch = db.batch();
+  visitasSnap.forEach(d => batch.delete(d.ref));
+  batch.delete(db.collection('clientes').doc(id));
+  await batch.commit();
+  currentClientId = null;
+  $('fichaScreen').classList.add('hidden');
+  $('mainScreen').classList.remove('hidden');
+}
+
+/* ---------- VISIT MODAL ---------- */
+function openVisitModal(v){
+  const today = new Date().toISOString().slice(0,10);
+  $('modalRoot').innerHTML = `
+    <div class="modal-bg"><div class="modal">
+      <h2>${v ? 'Editar visita' : 'Nueva visita'}</h2>
+      <label>Fecha</label><input id="vFecha" type="date" value="${v?.fecha||today}">
+      <label>Kilómetros</label><input id="vKm" type="number" inputmode="numeric" value="${v?.km||''}">
+      <label>Descripción</label><textarea id="vDesc">${v?.descripcion||''}</textarea>
+      <label>Repuestos</label><input id="vRep" type="number" inputmode="decimal" value="${v?.repuestos||''}">
+      <label>Mano de obra</label><input id="vMano" type="number" inputmode="decimal" value="${v?.manoObra||''}">
+      <label>Pagó</label><input id="vPago" type="number" inputmode="decimal" value="${v?.pago||''}">
+      <div class="totalPreview"><span>Total</span><span id="vTotalPreview">$0</span></div>
+      <p class="error" id="vError"></p>
+      <div class="modal-actions">
+        <button id="vCancel">Cancelar</button>
+        <button id="vSave" class="btn-primary">Guardar</button>
+      </div>
+    </div></div>`;
+  const updatePreview = () => {
+    const rep = parseFloat($('vRep').value)||0, mano = parseFloat($('vMano').value)||0;
+    $('vTotalPreview').textContent = money(rep+mano);
+  };
+  $('vRep').oninput = updatePreview;
+  $('vMano').oninput = updatePreview;
+  updatePreview();
+  $('vCancel').onclick = closeModal;
+  $('vSave').onclick = async () => {
+    const fecha = $('vFecha').value;
+    if(!fecha){ $('vError').textContent = 'Elegí una fecha.'; return; }
+    const repuestos = parseFloat($('vRep').value)||0;
+    const manoObra = parseFloat($('vMano').value)||0;
+    const pago = parseFloat($('vPago').value)||0;
+    const total = repuestos + manoObra;
+    const debe = Math.max(0, total - pago);
+    const data = {
+      fecha, km: parseInt($('vKm').value)||0,
+      descripcion: $('vDesc').value.trim(),
+      repuestos, manoObra, pago, total, debe
+    };
+    if(v){
+      await db.collection('clientes').doc(currentClientId).collection('visitas').doc(v.id).update(data);
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('clientes').doc(currentClientId).collection('visitas').add(data);
+    }
+    await recomputeDebt(currentClientId);
+    closeModal();
+  };
+}
+
+async function deleteVisit(id){
+  await db.collection('clientes').doc(currentClientId).collection('visitas').doc(id).delete();
+  await recomputeDebt(currentClientId);
+}
+
+async function recomputeDebt(clientId){
+  const snap = await db.collection('clientes').doc(clientId).collection('visitas').get();
+  let totalDebe = 0;
+  snap.forEach(d => totalDebe += (d.data().debe||0));
+  await db.collection('clientes').doc(clientId).update({totalDebe});
+}
+
+/* ---------- CONFIRM DELETE ---------- */
+function confirmDelete(label, onConfirm){
+  $('modalRoot').innerHTML = `
+    <div class="modal-bg"><div class="modal">
+      <h2>Eliminar ${label}</h2>
+      <p style="color:var(--text2); font-size:14px; margin-bottom:4px;">Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button id="cCancel">Cancelar</button>
+        <button id="cConfirm" class="btn-danger">Eliminar</button>
+      </div>
+    </div></div>`;
+  $('cCancel').onclick = closeModal;
+  $('cConfirm').onclick = async () => { await onConfirm(); closeModal(); };
+}
+
+function closeModal(){ $('modalRoot').innerHTML = ''; }
+</script>
+</body>
+</html>
