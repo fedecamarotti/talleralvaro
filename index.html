@@ -659,7 +659,10 @@ function openVisitModal(v){
     detalles.forEach((d,i) => {
       const repEl = detailsList.querySelector(`.detRep[data-idx="${i}"]`);
       attachMoneyInput(repEl, d.repuestos);
-      repEl.addEventListener('input', updateTotal);
+      repEl.addEventListener('input', () => {
+        detalles[i].repuestos = moneyValue(repEl);
+        updateTotal();
+      });
       detailsList.querySelector(`.detDesc[data-idx="${i}"]`).addEventListener('input', (e) => {
         detalles[i].descripcion = e.target.value;
       });
