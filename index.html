@@ -63,7 +63,11 @@ button:hover{border-color:#3a3a42;}
 .error{color:var(--danger); font-size:13px; margin-top:10px; min-height:16px;}
 
 /* header */
-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:10; background:var(--bg);
+  margin:-20px -16px 18px; padding:20px 16px 14px; border-bottom:1px solid var(--border);
+}
 header .actions{display:flex; gap:8px;}
 #debtorsBtn.active{background:var(--danger-bg); border-color:var(--danger); color:var(--danger);}
 .badge{
@@ -101,7 +105,11 @@ header .actions{display:flex; gap:8px;}
 .wa-btn:hover{background:rgba(63,174,106,.25);}
 
 /* ficha */
-#backBtn{margin-bottom:16px; color:var(--text2); background:transparent; border:none; padding:4px 0;}
+#backBtn{
+  color:var(--text2); background:var(--bg); border:none; border-radius:0;
+  position:sticky; top:0; z-index:10; margin:-20px -16px 16px; padding:20px 16px 14px;
+  border-bottom:1px solid var(--border); width:calc(100% + 32px); text-align:left; font-size:14px;
+}
 .client-card-big{
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
   padding:16px 18px; margin-bottom:20px;
@@ -125,14 +133,14 @@ header .actions{display:flex; gap:8px;}
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
   padding:14px 16px; margin-bottom:12px;
 }
-.visit-card.top{border-color:var(--accent);}
 .visit-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
 .visit-date{font-size:12.5px; color:var(--text2);}
 .visit-km{font-size:11.5px; background:var(--accent-bg); color:var(--accent); padding:2px 8px; border-radius:8px; margin-top:6px; display:inline-block;}
 .detail-row{display:flex; justify-content:space-between; font-size:13.5px; padding:5px 0; color:var(--text);}
 .detail-row .d{color:var(--text2);}
-.visit-nums{display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; margin:8px 0;}
-.visit-nums div{display:flex; justify-content:space-between; color:var(--text2);}
+.visit-notas{font-size:13px; color:var(--text2); background:var(--bg); border-radius:8px; padding:9px 11px; margin:6px 0 4px; white-space:pre-wrap;}
+.visit-nums{margin:2px 0 8px;}
+.visit-nums div{display:flex; justify-content:space-between; font-size:13.5px; color:var(--text2); padding:5px 0;}
 .visit-nums div span:last-child{color:var(--text);}
 .visit-total{
   border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between;
@@ -155,7 +163,9 @@ header .actions{display:flex; gap:8px;}
   width:100%; max-width:480px; max-height:88vh; overflow-y:auto; padding:20px 20px 24px;
 }
 @media(min-width:520px){.modal{border-radius:16px;}}
-.modal h2{color:var(--text); font-size:17px; margin-bottom:16px;}
+.modal h2{color:var(--text); font-size:17px;}
+.modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.modal-close{background:transparent; border:none; color:var(--text2); font-size:22px; line-height:1; padding:2px 4px;}
 .modal-actions{display:flex; gap:10px; margin-top:20px;}
 .modal-actions button{flex:1;}
 .totalPreview{
@@ -415,6 +425,9 @@ function renderClientCard(){
       </div>
       <div class="row2">
         <div><div class="field-label">Auto</div><div class="field-value">${c.auto||'—'}</div></div>
+        <div><div class="field-label">Año</div><div class="field-value">${c.anio||'—'}</div></div>
+      </div>
+      <div class="row2" style="margin-top:10px;">
         <div><div class="field-label">Patente</div><div class="field-value">${c.patente||'—'}</div></div>
       </div>
     </div>`;
@@ -431,13 +444,14 @@ function renderVisits(){
     return;
   }
   el.innerHTML = currentVisits.map((v,i) => `
-    <div class="visit-card ${i===0?'top':''}">
+    <div class="visit-card">
       <div class="visit-top">
         <div>
           <div class="visit-date">${fmtDate(v.fecha)}</div>
           ${v.km ? `<div class="visit-km">${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
         </div>
         <div class="card-actions">
+          <button class="btn-icon" data-pdf="${v.id}">PDF</button>
           <button class="btn-icon" data-edit="${v.id}">Editar</button>
           <button class="btn-icon btn-danger" data-del="${v.id}">Eliminar</button>
         </div>
@@ -445,17 +459,19 @@ function renderVisits(){
       ${(v.detalles||[]).map(d => `
         <div class="detail-row"><span class="d">${d.descripcion||''}</span><span>${money(d.repuestos)}</span></div>
       `).join('')}
+      ${v.notas ? `<div class="visit-notas">${v.notas}</div>` : ''}
       <div class="visit-nums">
         <div><span>Mano de obra</span><span>${money(v.manoObra)}</span></div>
       </div>
       <div class="visit-total"><span>Total</span><span>${money(v.total)}</span></div>
       <div class="visit-pay ${v.debe > 0 ? 'debt' : 'paid'}">
-        <span>Pagó ${money(v.pago)}${v.debe > 0 ? ' · debe' : ''}</span>
-        ${v.debe > 0 ? `<span>${money(v.debe)}</span>` : `<span>Pagado</span>`}
+        <span>Pagó ${money(v.pago)}</span>
+        <span>${v.debe > 0 ? 'Debe ' + money(v.debe) : 'Pagado'}</span>
       </div>
     </div>`).join('');
   el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openVisitModal(currentVisits.find(v => v.id === b.dataset.edit)));
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => confirmDelete('visita', () => deleteVisit(b.dataset.del)));
+  el.querySelectorAll('[data-pdf]').forEach(b => b.onclick = () => exportVisitPDF(currentVisits.find(v => v.id === b.dataset.pdf)));
 }
 $('newVisitBtn').onclick = () => openVisitModal(null);
 $('newPaymentBtn').onclick = () => openPaymentModal();
@@ -466,18 +482,20 @@ function openPaymentModal(){
   const c = allClients.find(x => x.id === currentClientId);
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal">
-      <h2>Nuevo pago</h2>
+      <div class="modal-head">
+        <h2>Nuevo pago</h2>
+        <button type="button" class="modal-close" id="pClose">&times;</button>
+      </div>
       <p style="color:var(--text2); font-size:13px; margin-bottom:6px;">Se aplica a la deuda de ${c?.nombre||''} ${c?.apellido||''}, empezando por las visitas más antiguas.</p>
       <label>Fecha</label><input id="pFecha" type="date" value="${today}">
       <label>Pagó</label><input id="pMonto" inputmode="numeric" placeholder="$0">
       <p class="error" id="pError"></p>
       <div class="modal-actions">
-        <button id="pCancel">Cancelar</button>
         <button id="pSave" class="btn-primary">Guardar</button>
       </div>
     </div></div>`;
   attachMoneyInput($('pMonto'), 0);
-  $('pCancel').onclick = closeModal;
+  $('pClose').onclick = closeModal;
   $('pSave').onclick = async () => {
     const monto = moneyValue($('pMonto'));
     if(monto <= 0){ $('pError').textContent = 'Ingresá un monto mayor a $0.'; return; }
@@ -508,7 +526,10 @@ async function applyPayment(clientId, monto){
 function openClientModal(c){
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal">
-      <h2>${c ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+      <div class="modal-head">
+        <h2>${c ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+        <button type="button" class="modal-close" id="mClose">&times;</button>
+      </div>
       <label>Nombre</label><input id="mNombre" value="${c?.nombre||''}">
       <label>Apellido</label><input id="mApellido" value="${c?.apellido||''}">
       <label>Teléfono</label>
@@ -517,13 +538,14 @@ function openClientModal(c){
         <span class="check-icon" id="mTelefonoCheck"></span>
       </div>
       <label>Auto</label><input id="mAuto" value="${c?.auto||''}">
+      <label>Año</label><input id="mAnio" inputmode="numeric" value="${c?.anio||''}" placeholder="Ej: 2019">
       <label>Patente</label><input id="mPatente" value="${(c?.patente||'').toUpperCase()}">
       <p class="error" id="mError"></p>
       <div class="modal-actions">
-        <button id="mCancel">Cancelar</button>
         <button id="mSave" class="btn-primary">Guardar</button>
       </div>
     </div></div>`;
+  $('mClose').onclick = closeModal;
   const telInput = $('mTelefono'), telCheck = $('mTelefonoCheck');
   const updateTelCheck = () => {
     if(!telInput.value.trim()){ telCheck.textContent = ''; return; }
@@ -538,7 +560,6 @@ function openClientModal(c){
     patInput.value = patInput.value.toUpperCase();
     patInput.setSelectionRange(pos, pos);
   });
-  $('mCancel').onclick = closeModal;
   $('mSave').onclick = async () => {
     const nombre = $('mNombre').value.trim(), apellido = $('mApellido').value.trim();
     if(!nombre || !apellido){ $('mError').textContent = 'Completá nombre y apellido.'; return; }
@@ -546,6 +567,7 @@ function openClientModal(c){
       nombre, apellido,
       telefono: telInput.value.trim(),
       auto: $('mAuto').value.trim(),
+      anio: $('mAnio').value.trim(),
       patente: patInput.value.trim().toUpperCase()
     };
     if(c){
@@ -587,21 +609,25 @@ function openVisitModal(v){
 
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal">
-      <h2>${v ? 'Editar visita' : 'Nueva visita'}</h2>
+      <div class="modal-head">
+        <h2>${v ? 'Editar visita' : 'Nueva visita'}</h2>
+        <button type="button" class="modal-close" id="vClose">&times;</button>
+      </div>
       <label>Fecha</label><input id="vFecha" type="date" value="${v?.fecha||today}">
       <label>Kilómetros</label><input id="vKm" inputmode="numeric" placeholder="Ej: 127.000">
       <label style="margin-top:18px;">Detalles</label>
       <div id="detailsList"></div>
       <button type="button" class="btn-ghost" id="addDetailBtn">+ Agregar detalle</button>
+      <label>Notas</label><textarea id="vNotas" placeholder="Observaciones, recomendaciones, etc.">${v?.notas||''}</textarea>
       <label>Mano de obra</label><input id="vMano" inputmode="numeric" placeholder="$0">
       <div class="totalPreview"><span>Total</span><span id="vTotalPreview">$0</span></div>
       <label>Pagó</label><input id="vPago" inputmode="numeric" placeholder="$0">
       <p class="error" id="vError"></p>
       <div class="modal-actions">
-        <button id="vCancel">Cancelar</button>
         <button id="vSave" class="btn-primary">Guardar</button>
       </div>
     </div></div>`;
+  $('vClose').onclick = closeModal;
 
   attachKmInput($('vKm'), v?.km);
   attachMoneyInput($('vMano'), v?.manoObra);
@@ -644,7 +670,6 @@ function openVisitModal(v){
   $('vMano').addEventListener('input', updateTotal);
   updateTotal();
 
-  $('vCancel').onclick = closeModal;
   $('vSave').onclick = async () => {
     const fecha = $('vFecha').value;
     if(!fecha){ $('vError').textContent = 'Elegí una fecha.'; return; }
@@ -663,6 +688,7 @@ function openVisitModal(v){
     const data = {
       fecha, km: kmValue($('vKm')),
       detalles: detallesOut,
+      notas: $('vNotas').value.trim(),
       manoObra, pago, total, debe
     };
     if(v){
@@ -701,6 +727,50 @@ function confirmDelete(label, onConfirm){
     </div></div>`;
   $('cCancel').onclick = closeModal;
   $('cConfirm').onclick = async () => { await onConfirm(); closeModal(); };
+}
+
+function exportVisitPDF(v){
+  const c = allClients.find(x => x.id === currentClientId);
+  if(!c || !v) return;
+  const detallesHtml = (v.detalles||[]).map(d => `
+    <tr><td>${d.descripcion||''}</td><td class="r">${money(d.repuestos)}</td></tr>
+  `).join('');
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Visita ${fmtDate(v.fecha)} - ${c.nombre} ${c.apellido}</title>
+  <style>
+    *{box-sizing:border-box;} body{font-family:-apple-system,Arial,sans-serif; color:#1a1a1a; padding:32px; max-width:640px; margin:0 auto;}
+    h1{font-size:20px; margin:0 0 4px;} .sub{color:#666; font-size:13px; margin-bottom:24px;}
+    .section{margin-bottom:18px;} .label{font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.03em;}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;}
+    table{width:100%; border-collapse:collapse; margin-bottom:10px;}
+    td{padding:7px 0; border-bottom:1px solid #eee; font-size:14px;} td.r{text-align:right;}
+    .totalRow td{font-weight:700; font-size:15px; border-bottom:none; border-top:2px solid #1a1a1a; padding-top:10px;}
+    .notas{background:#f5f5f5; border-radius:8px; padding:12px; font-size:13px; margin-bottom:18px; white-space:pre-wrap;}
+    .pay{font-size:14px; font-weight:600; padding:10px 12px; border-radius:8px;}
+    .pay.debt{background:#fdeceb; color:#c0392b;} .pay.paid{background:#eaf7ef; color:#1e8449;}
+    @media print{ body{padding:0;} }
+  </style></head><body>
+    <h1>Taller Álvaro</h1>
+    <div class="sub">Detalle de visita</div>
+    <div class="grid">
+      <div><div class="label">Cliente</div>${c.nombre} ${c.apellido}</div>
+      <div><div class="label">Fecha</div>${fmtDate(v.fecha)}</div>
+      <div><div class="label">Auto</div>${c.auto||'—'}${c.anio ? ' ('+c.anio+')' : ''}</div>
+      <div><div class="label">Patente</div>${c.patente||'—'}</div>
+      ${v.km ? `<div><div class="label">Kilómetros</div>${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
+    </div>
+    <table>
+      ${detallesHtml}
+      <tr><td>Mano de obra</td><td class="r">${money(v.manoObra)}</td></tr>
+      <tr class="totalRow"><td>Total</td><td class="r">${money(v.total)}</td></tr>
+    </table>
+    ${v.notas ? `<div class="notas">${v.notas}</div>` : ''}
+    <div class="pay ${v.debe > 0 ? 'debt' : 'paid'}">Pagó ${money(v.pago)}${v.debe > 0 ? ' · Debe ' + money(v.debe) : ' · Pagado'}</div>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
 }
 
 function closeModal(){ $('modalRoot').innerHTML = ''; }
