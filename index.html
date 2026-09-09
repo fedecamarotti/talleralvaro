@@ -188,7 +188,22 @@ header .actions{display:flex; gap:8px;}
   font-size:13px; padding:2px 6px;
 }
 .pdf-modal{max-width:600px;}
-.pdf-frame{width:100%; height:60vh; border:1px solid var(--border); border-radius:10px; background:#fff;}
+.pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
+.pv-title{background:#18181b; color:#fff; padding:16px 18px; font-weight:700; font-size:19px; text-align:center;}
+.pv-body{padding:20px 18px;}
+.pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
+.pv-value{font-size:16px; font-weight:500;}
+.pv-sub{font-size:13.5px; color:#777; margin-top:2px;}
+.pv-table{width:100%; border-collapse:collapse; margin-top:16px;}
+.pv-table td{padding:10px 4px; border-bottom:1px solid #eee; font-size:15px;}
+.pv-table td.r{text-align:right;}
+.pv-thead td{background:#ebebeb; font-weight:700; font-size:13px; color:#555;}
+.pv-notas{background:#f5f5f5; border-radius:8px; padding:12px 14px; font-size:14px; color:#555; margin-top:14px; white-space:pre-wrap; font-style:italic;}
+.pv-totals{margin-top:16px; border-top:2px solid #eee; padding-top:12px;}
+.pv-total-row{display:flex; justify-content:space-between; font-size:15px; color:#666; padding:5px 0;}
+.pv-total-row.big{font-size:18px; font-weight:700; color:#1a1a1a;}
+.pv-total-row.debt{color:#c0392b; font-weight:500;}
 .wa-share-btn{background:var(--success); border-color:var(--success); color:#fff; font-weight:500;}
 .wa-share-btn:hover{background:#379a5c;}
 </style>
@@ -739,105 +754,127 @@ function buildVisitPDF(v, c){
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const pageW = 210, margin = 15, colW = pageW - margin*2;
 
-  // banda superior
-  doc.setFillColor(235,235,235);
-  doc.rect(0,0,pageW,13,'F');
-  doc.setTextColor(40,40,40);
-  doc.setFont(undefined,'bold'); doc.setFontSize(11);
-  doc.text('TALLER ÁLVARO', margin, 8.5);
-
   // título
   doc.setFillColor(24,24,27);
-  doc.rect(0,13,pageW,16,'F');
+  doc.rect(0,0,pageW,18,'F');
   doc.setTextColor(255,255,255);
-  doc.setFontSize(17);
-  doc.text('COMPROBANTE DE VISITA', pageW/2, 23.5, {align:'center'});
+  doc.setFontSize(19);
+  doc.text('Taller Álvaro', pageW/2, 11.5, {align:'center'});
 
   doc.setTextColor(30,30,30);
-  let y = 40;
+  let y = 34;
 
   // datos cliente / vehículo
-  doc.setFont(undefined,'bold'); doc.setFontSize(9); doc.setTextColor(120,120,120);
+  doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(120,120,120);
   doc.text('CLIENTE', margin, y);
   doc.text('VEHÍCULO', margin+colW/2, y);
-  y += 6;
-  doc.setFont(undefined,'normal'); doc.setFontSize(12); doc.setTextColor(30,30,30);
+  y += 7;
+  doc.setFont(undefined,'normal'); doc.setFontSize(14); doc.setTextColor(30,30,30);
   doc.text(`${c.nombre} ${c.apellido}`, margin, y);
   doc.text(`${c.auto||'—'}`, margin+colW/2, y);
-  y += 6;
-  doc.setFontSize(10); doc.setTextColor(90,90,90);
+  y += 6.5;
+  doc.setFontSize(11.5); doc.setTextColor(90,90,90);
   doc.text(c.telefono||'', margin, y);
   doc.text(`${c.patente||''}${c.anio ? '  ·  '+c.anio : ''}`, margin+colW/2, y);
-  y += 6;
+  y += 6.5;
   doc.text(`Fecha: ${fmtDate(v.fecha)}`, margin, y);
   if(v.km) doc.text(`Kilometraje: ${parseInt(v.km).toLocaleString('es-AR')} km`, margin+colW/2, y);
-  y += 10;
+  y += 11;
 
   // tabla
   doc.setFillColor(235,235,235);
-  doc.rect(margin, y, colW, 8, 'F');
-  doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(50,50,50);
-  doc.text('DETALLE', margin+3, y+5.5);
-  doc.text('VALOR', margin+colW-3, y+5.5, {align:'right'});
-  y += 8;
+  doc.rect(margin, y, colW, 9, 'F');
+  doc.setFont(undefined,'bold'); doc.setFontSize(11.5); doc.setTextColor(50,50,50);
+  doc.text('DETALLE', margin+3, y+6);
+  doc.text('VALOR', margin+colW-3, y+6, {align:'right'});
+  y += 9;
 
-  doc.setFont(undefined,'normal'); doc.setFontSize(11); doc.setTextColor(30,30,30);
+  doc.setFont(undefined,'normal'); doc.setFontSize(12.5); doc.setTextColor(30,30,30);
   (v.detalles||[]).forEach(d => {
-    y += 8;
+    y += 9;
     doc.text(d.descripcion||'', margin+3, y);
     doc.text(money(d.repuestos), margin+colW-3, y, {align:'right'});
     doc.setDrawColor(225,225,225);
-    doc.line(margin, y+3, margin+colW, y+3);
+    doc.line(margin, y+3.2, margin+colW, y+3.2);
   });
-  y += 8;
+  y += 9;
   doc.text('Mano de obra', margin+3, y);
   doc.text(money(v.manoObra), margin+colW-3, y, {align:'right'});
   doc.setDrawColor(225,225,225);
-  doc.line(margin, y+3, margin+colW, y+3);
-  y += 10;
+  doc.line(margin, y+3.2, margin+colW, y+3.2);
+  y += 11;
 
   // notas
   if(v.notas){
-    doc.setFont(undefined,'italic'); doc.setFontSize(9.5); doc.setTextColor(100,100,100);
+    doc.setFont(undefined,'italic'); doc.setFontSize(10.5); doc.setTextColor(100,100,100);
     const lines = doc.splitTextToSize(v.notas, colW-6);
     doc.text(lines, margin+3, y);
-    y += lines.length*4.5 + 6;
+    y += lines.length*5 + 6;
   }
 
   // totales
   y += 4;
-  const boxW = 80, boxX = margin+colW-boxW;
+  const boxW = 85, boxX = margin+colW-boxW;
   doc.setDrawColor(210,210,210);
   doc.line(boxX, y, boxX+boxW, y);
-  y += 7;
-  doc.setFont(undefined,'bold'); doc.setFontSize(12); doc.setTextColor(30,30,30);
+  y += 8;
+  doc.setFont(undefined,'bold'); doc.setFontSize(14); doc.setTextColor(30,30,30);
   doc.text('Total', boxX, y);
   doc.text(money(v.total), boxX+boxW, y, {align:'right'});
-  y += 7;
-  doc.setFont(undefined,'normal'); doc.setFontSize(10.5); doc.setTextColor(80,80,80);
+  y += 8;
+  doc.setFont(undefined,'normal'); doc.setFontSize(12); doc.setTextColor(80,80,80);
   doc.text('Pagó', boxX, y);
   doc.text(money(v.pago), boxX+boxW, y, {align:'right'});
-  y += 6.5;
-  doc.setFont(undefined,'bold');
-  doc.setTextColor(v.debe > 0 ? 190 : 30, v.debe > 0 ? 60 : 140, v.debe > 0 ? 55 : 70);
-  doc.text(v.debe > 0 ? 'Debe' : 'Pagado', boxX, y);
-  if(v.debe > 0) doc.text(money(v.debe), boxX+boxW, y, {align:'right'});
+  if(v.debe > 0){
+    y += 7;
+    doc.setTextColor(190,60,55);
+    doc.text('Debe', boxX, y);
+    doc.text(money(v.debe), boxX+boxW, y, {align:'right'});
+  }
 
   return doc;
+}
+
+function visitPreviewHTML(v, c){
+  const detallesHtml = (v.detalles||[]).map(d => `
+    <tr><td>${d.descripcion||''}</td><td class="r">${money(d.repuestos)}</td></tr>
+  `).join('');
+  return `
+    <div class="pv-title">Taller Álvaro</div>
+    <div class="pv-body">
+      <div class="pv-grid">
+        <div><div class="pv-label">Cliente</div><div class="pv-value">${c.nombre} ${c.apellido}</div><div class="pv-sub">${c.telefono||''}</div></div>
+        <div><div class="pv-label">Vehículo</div><div class="pv-value">${c.auto||'—'}</div><div class="pv-sub">${c.patente||''}${c.anio ? ' · '+c.anio : ''}</div></div>
+      </div>
+      <div class="pv-grid" style="margin-top:10px;">
+        <div><div class="pv-label">Fecha</div><div class="pv-value">${fmtDate(v.fecha)}</div></div>
+        ${v.km ? `<div><div class="pv-label">Kilometraje</div><div class="pv-value">${parseInt(v.km).toLocaleString('es-AR')} km</div></div>` : ''}
+      </div>
+      <table class="pv-table">
+        <tr class="pv-thead"><td>DETALLE</td><td class="r">VALOR</td></tr>
+        ${detallesHtml}
+        <tr><td>Mano de obra</td><td class="r">${money(v.manoObra)}</td></tr>
+      </table>
+      ${v.notas ? `<div class="pv-notas">${v.notas}</div>` : ''}
+      <div class="pv-totals">
+        <div class="pv-total-row big"><span>Total</span><span>${money(v.total)}</span></div>
+        <div class="pv-total-row"><span>Pagó</span><span>${money(v.pago)}</span></div>
+        ${v.debe > 0 ? `<div class="pv-total-row debt"><span>Debe</span><span>${money(v.debe)}</span></div>` : ''}
+      </div>
+    </div>`;
 }
 
 function exportVisitPDF(v){
   const c = allClients.find(x => x.id === currentClientId);
   if(!c || !v) return;
   const doc = buildVisitPDF(v, c);
-  const blobUrl = doc.output('bloburl');
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal pdf-modal">
       <div class="modal-head">
         <h2>Comprobante de visita</h2>
         <button type="button" class="modal-close" id="pdfClose">&times;</button>
       </div>
-      <iframe class="pdf-frame" src="${blobUrl}"></iframe>
+      <div class="pdf-preview">${visitPreviewHTML(v, c)}</div>
       <div class="modal-actions">
         <button id="pdfDownload">Descargar</button>
         ${isValidPhone(c.telefono) ? `<button id="pdfWhatsapp" class="wa-share-btn">Enviar por WhatsApp</button>` : ''}
