@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Taller Álvaro</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="theme-color" content="#0e0e11">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Taller">
 <style>
 :root{
   --bg:#0e0e11; --bg2:#17171c; --card:#1c1c22; --border:#2a2a31;
@@ -87,7 +95,7 @@ header .actions{display:flex; gap:8px;}
 }
 .empty{color:var(--muted); font-size:14px; text-align:center; padding:40px 10px;}
 .wa-btn{
-  width:34px; height:34px; border-radius:50%; background:var(--success-bg); color:var(--success);
+  width:30px; height:30px; border-radius:50%; background:var(--success-bg); color:var(--success);
   display:flex; align-items:center; justify-content:center; flex-shrink:0; border:none; font-size:16px;
 }
 .wa-btn:hover{background:rgba(63,174,106,.25);}
@@ -98,10 +106,12 @@ header .actions{display:flex; gap:8px;}
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
   padding:16px 18px; margin-bottom:20px;
 }
-.client-card-big .row1{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
-.client-card-big .avatar{width:46px; height:46px; font-size:14px;}
+.client-card-big .row1{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+.client-card-big .avatar{width:46px; height:46px; font-size:14px; flex-shrink:0;}
 .client-card-big .name{font-weight:600; font-size:16px;}
 .client-card-big .phone{font-size:13px; color:var(--text2); margin-top:2px;}
+.client-card-big .row1b{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.client-card-big .row1b .card-actions{margin-left:auto;}
 .client-card-big .row2{
   border-top:1px solid var(--border); padding-top:10px; margin-top:2px;
   display:grid; grid-template-columns:1fr 1fr; gap:10px;
@@ -204,7 +214,10 @@ header .actions{display:flex; gap:8px;}
     <div id="clientCard"></div>
     <div class="visits-header">
       <h2>HISTORIAL DE VISITAS</h2>
-      <button id="newVisitBtn" class="btn-primary">+ Nueva visita</button>
+      <div style="display:flex; gap:8px;">
+        <button id="newPaymentBtn">+ Nuevo pago</button>
+        <button id="newVisitBtn" class="btn-primary">+ Nueva visita</button>
+      </div>
     </div>
     <div id="visitsList"></div>
   </div>
@@ -342,7 +355,7 @@ function renderClientList(){
         <div class="sub">${c.auto||''}${c.patente ? ' · '+c.patente : ''}</div>
       </div>
       ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
-      ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3z"/></svg></button>` : ''}
+      ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.478 1.34 4.995L2 22l5.116-1.341a9.958 9.958 0 0 0 4.888 1.34h.004c5.514 0 9.997-4.483 9.997-9.997 0-2.67-1.04-5.18-2.929-7.069a9.935 9.935 0 0 0-7.072-2.93zm0 18.198a8.185 8.185 0 0 1-4.166-1.14l-.299-.177-3.106.815.83-3.03-.194-.31a8.194 8.194 0 0 1-1.264-4.36c0-4.527 3.684-8.211 8.213-8.211a8.16 8.16 0 0 1 5.807 2.406 8.156 8.156 0 0 1 2.404 5.809c-.001 4.528-3.685 8.198-8.225 8.198z"/></svg></button>` : ''}
     </div>`).join('');
   el.querySelectorAll('.client-card').forEach(card => {
     card.onclick = (e) => { if(e.target.closest('.wa-btn')) return; openFicha(card.dataset.id); };
@@ -391,8 +404,10 @@ function renderClientCard(){
           <div class="name">${c.nombre} ${c.apellido}</div>
           <div class="phone">${c.telefono||''}</div>
         </div>
+        ${isValidPhone(c.telefono) ? `<button class="wa-btn" id="waFichaBtn" aria-label="Abrir WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.478 1.34 4.995L2 22l5.116-1.341a9.958 9.958 0 0 0 4.888 1.34h.004c5.514 0 9.997-4.483 9.997-9.997 0-2.67-1.04-5.18-2.929-7.069a9.935 9.935 0 0 0-7.072-2.93zm0 18.198a8.185 8.185 0 0 1-4.166-1.14l-.299-.177-3.106.815.83-3.03-.194-.31a8.194 8.194 0 0 1-1.264-4.36c0-4.527 3.684-8.211 8.213-8.211a8.16 8.16 0 0 1 5.807 2.406 8.156 8.156 0 0 1 2.404 5.809c-.001 4.528-3.685 8.198-8.225 8.198z"/></svg></button>` : ''}
+      </div>
+      <div class="row1b">
         ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
-        ${isValidPhone(c.telefono) ? `<button class="wa-btn" id="waFichaBtn" aria-label="Abrir WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3z"/></svg></button>` : ''}
         <div class="card-actions">
           <button class="btn-icon" id="editClientBtn">Editar</button>
           <button class="btn-icon btn-danger" id="delClientBtn">Eliminar</button>
@@ -443,6 +458,51 @@ function renderVisits(){
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => confirmDelete('visita', () => deleteVisit(b.dataset.del)));
 }
 $('newVisitBtn').onclick = () => openVisitModal(null);
+$('newPaymentBtn').onclick = () => openPaymentModal();
+
+/* ---------- PAGO SUELTO ---------- */
+function openPaymentModal(){
+  const today = new Date().toISOString().slice(0,10);
+  const c = allClients.find(x => x.id === currentClientId);
+  $('modalRoot').innerHTML = `
+    <div class="modal-bg"><div class="modal">
+      <h2>Nuevo pago</h2>
+      <p style="color:var(--text2); font-size:13px; margin-bottom:6px;">Se aplica a la deuda de ${c?.nombre||''} ${c?.apellido||''}, empezando por las visitas más antiguas.</p>
+      <label>Fecha</label><input id="pFecha" type="date" value="${today}">
+      <label>Pagó</label><input id="pMonto" inputmode="numeric" placeholder="$0">
+      <p class="error" id="pError"></p>
+      <div class="modal-actions">
+        <button id="pCancel">Cancelar</button>
+        <button id="pSave" class="btn-primary">Guardar</button>
+      </div>
+    </div></div>`;
+  attachMoneyInput($('pMonto'), 0);
+  $('pCancel').onclick = closeModal;
+  $('pSave').onclick = async () => {
+    const monto = moneyValue($('pMonto'));
+    if(monto <= 0){ $('pError').textContent = 'Ingresá un monto mayor a $0.'; return; }
+    await applyPayment(currentClientId, monto);
+    closeModal();
+  };
+}
+
+async function applyPayment(clientId, monto){
+  const snap = await db.collection('clientes').doc(clientId).collection('visitas')
+    .orderBy('fecha','asc').get();
+  const batch = db.batch();
+  let restante = monto;
+  snap.docs.forEach(doc => {
+    if(restante <= 0) return;
+    const v = doc.data();
+    const debe = v.debe||0;
+    if(debe <= 0) return;
+    const aplicado = Math.min(debe, restante);
+    restante -= aplicado;
+    batch.update(doc.ref, { pago: (v.pago||0) + aplicado, debe: debe - aplicado });
+  });
+  await batch.commit();
+  await recomputeDebt(clientId);
+}
 
 /* ---------- CLIENT MODAL ---------- */
 function openClientModal(c){
@@ -644,6 +704,10 @@ function confirmDelete(label, onConfirm){
 }
 
 function closeModal(){ $('modalRoot').innerHTML = ''; }
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
 </script>
 </body>
 </html>
