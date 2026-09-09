@@ -187,6 +187,10 @@ header .actions{display:flex; gap:8px;}
   position:absolute; top:8px; right:8px; background:transparent; border:none; color:var(--muted);
   font-size:13px; padding:2px 6px;
 }
+.pdf-modal{max-width:600px;}
+.pdf-frame{width:100%; height:60vh; border:1px solid var(--border); border-radius:10px; background:#fff;}
+.wa-share-btn{background:var(--success); border-color:var(--success); color:#fff; font-weight:500;}
+.wa-share-btn:hover{background:#379a5c;}
 </style>
 </head>
 <body>
@@ -238,6 +242,7 @@ header .actions{display:flex; gap:8px;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBjxBmNOL72N2r4QzlT6MQUNooNvEivFss",
@@ -729,48 +734,134 @@ function confirmDelete(label, onConfirm){
   $('cConfirm').onclick = async () => { await onConfirm(); closeModal(); };
 }
 
+function buildVisitPDF(v, c){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const pageW = 210, margin = 15, colW = pageW - margin*2;
+
+  // banda superior
+  doc.setFillColor(235,235,235);
+  doc.rect(0,0,pageW,13,'F');
+  doc.setTextColor(40,40,40);
+  doc.setFont(undefined,'bold'); doc.setFontSize(11);
+  doc.text('TALLER ÁLVARO', margin, 8.5);
+
+  // título
+  doc.setFillColor(24,24,27);
+  doc.rect(0,13,pageW,16,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(17);
+  doc.text('COMPROBANTE DE VISITA', pageW/2, 23.5, {align:'center'});
+
+  doc.setTextColor(30,30,30);
+  let y = 40;
+
+  // datos cliente / vehículo
+  doc.setFont(undefined,'bold'); doc.setFontSize(9); doc.setTextColor(120,120,120);
+  doc.text('CLIENTE', margin, y);
+  doc.text('VEHÍCULO', margin+colW/2, y);
+  y += 6;
+  doc.setFont(undefined,'normal'); doc.setFontSize(12); doc.setTextColor(30,30,30);
+  doc.text(`${c.nombre} ${c.apellido}`, margin, y);
+  doc.text(`${c.auto||'—'}`, margin+colW/2, y);
+  y += 6;
+  doc.setFontSize(10); doc.setTextColor(90,90,90);
+  doc.text(c.telefono||'', margin, y);
+  doc.text(`${c.patente||''}${c.anio ? '  ·  '+c.anio : ''}`, margin+colW/2, y);
+  y += 6;
+  doc.text(`Fecha: ${fmtDate(v.fecha)}`, margin, y);
+  if(v.km) doc.text(`Kilometraje: ${parseInt(v.km).toLocaleString('es-AR')} km`, margin+colW/2, y);
+  y += 10;
+
+  // tabla
+  doc.setFillColor(235,235,235);
+  doc.rect(margin, y, colW, 8, 'F');
+  doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(50,50,50);
+  doc.text('DETALLE', margin+3, y+5.5);
+  doc.text('VALOR', margin+colW-3, y+5.5, {align:'right'});
+  y += 8;
+
+  doc.setFont(undefined,'normal'); doc.setFontSize(11); doc.setTextColor(30,30,30);
+  (v.detalles||[]).forEach(d => {
+    y += 8;
+    doc.text(d.descripcion||'', margin+3, y);
+    doc.text(money(d.repuestos), margin+colW-3, y, {align:'right'});
+    doc.setDrawColor(225,225,225);
+    doc.line(margin, y+3, margin+colW, y+3);
+  });
+  y += 8;
+  doc.text('Mano de obra', margin+3, y);
+  doc.text(money(v.manoObra), margin+colW-3, y, {align:'right'});
+  doc.setDrawColor(225,225,225);
+  doc.line(margin, y+3, margin+colW, y+3);
+  y += 10;
+
+  // notas
+  if(v.notas){
+    doc.setFont(undefined,'italic'); doc.setFontSize(9.5); doc.setTextColor(100,100,100);
+    const lines = doc.splitTextToSize(v.notas, colW-6);
+    doc.text(lines, margin+3, y);
+    y += lines.length*4.5 + 6;
+  }
+
+  // totales
+  y += 4;
+  const boxW = 80, boxX = margin+colW-boxW;
+  doc.setDrawColor(210,210,210);
+  doc.line(boxX, y, boxX+boxW, y);
+  y += 7;
+  doc.setFont(undefined,'bold'); doc.setFontSize(12); doc.setTextColor(30,30,30);
+  doc.text('Total', boxX, y);
+  doc.text(money(v.total), boxX+boxW, y, {align:'right'});
+  y += 7;
+  doc.setFont(undefined,'normal'); doc.setFontSize(10.5); doc.setTextColor(80,80,80);
+  doc.text('Pagó', boxX, y);
+  doc.text(money(v.pago), boxX+boxW, y, {align:'right'});
+  y += 6.5;
+  doc.setFont(undefined,'bold');
+  doc.setTextColor(v.debe > 0 ? 190 : 30, v.debe > 0 ? 60 : 140, v.debe > 0 ? 55 : 70);
+  doc.text(v.debe > 0 ? 'Debe' : 'Pagado', boxX, y);
+  if(v.debe > 0) doc.text(money(v.debe), boxX+boxW, y, {align:'right'});
+
+  return doc;
+}
+
 function exportVisitPDF(v){
   const c = allClients.find(x => x.id === currentClientId);
   if(!c || !v) return;
-  const detallesHtml = (v.detalles||[]).map(d => `
-    <tr><td>${d.descripcion||''}</td><td class="r">${money(d.repuestos)}</td></tr>
-  `).join('');
-  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-  <title>Visita ${fmtDate(v.fecha)} - ${c.nombre} ${c.apellido}</title>
-  <style>
-    *{box-sizing:border-box;} body{font-family:-apple-system,Arial,sans-serif; color:#1a1a1a; padding:32px; max-width:640px; margin:0 auto;}
-    h1{font-size:20px; margin:0 0 4px;} .sub{color:#666; font-size:13px; margin-bottom:24px;}
-    .section{margin-bottom:18px;} .label{font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.03em;}
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;}
-    table{width:100%; border-collapse:collapse; margin-bottom:10px;}
-    td{padding:7px 0; border-bottom:1px solid #eee; font-size:14px;} td.r{text-align:right;}
-    .totalRow td{font-weight:700; font-size:15px; border-bottom:none; border-top:2px solid #1a1a1a; padding-top:10px;}
-    .notas{background:#f5f5f5; border-radius:8px; padding:12px; font-size:13px; margin-bottom:18px; white-space:pre-wrap;}
-    .pay{font-size:14px; font-weight:600; padding:10px 12px; border-radius:8px;}
-    .pay.debt{background:#fdeceb; color:#c0392b;} .pay.paid{background:#eaf7ef; color:#1e8449;}
-    @media print{ body{padding:0;} }
-  </style></head><body>
-    <h1>Taller Álvaro</h1>
-    <div class="sub">Detalle de visita</div>
-    <div class="grid">
-      <div><div class="label">Cliente</div>${c.nombre} ${c.apellido}</div>
-      <div><div class="label">Fecha</div>${fmtDate(v.fecha)}</div>
-      <div><div class="label">Auto</div>${c.auto||'—'}${c.anio ? ' ('+c.anio+')' : ''}</div>
-      <div><div class="label">Patente</div>${c.patente||'—'}</div>
-      ${v.km ? `<div><div class="label">Kilómetros</div>${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
-    </div>
-    <table>
-      ${detallesHtml}
-      <tr><td>Mano de obra</td><td class="r">${money(v.manoObra)}</td></tr>
-      <tr class="totalRow"><td>Total</td><td class="r">${money(v.total)}</td></tr>
-    </table>
-    ${v.notas ? `<div class="notas">${v.notas}</div>` : ''}
-    <div class="pay ${v.debe > 0 ? 'debt' : 'paid'}">Pagó ${money(v.pago)}${v.debe > 0 ? ' · Debe ' + money(v.debe) : ' · Pagado'}</div>
-  </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 300);
+  const doc = buildVisitPDF(v, c);
+  const blobUrl = doc.output('bloburl');
+  $('modalRoot').innerHTML = `
+    <div class="modal-bg"><div class="modal pdf-modal">
+      <div class="modal-head">
+        <h2>Comprobante de visita</h2>
+        <button type="button" class="modal-close" id="pdfClose">&times;</button>
+      </div>
+      <iframe class="pdf-frame" src="${blobUrl}"></iframe>
+      <div class="modal-actions">
+        <button id="pdfDownload">Descargar</button>
+        ${isValidPhone(c.telefono) ? `<button id="pdfWhatsapp" class="wa-share-btn">Enviar por WhatsApp</button>` : ''}
+      </div>
+    </div></div>`;
+  $('pdfClose').onclick = closeModal;
+  $('pdfDownload').onclick = () => doc.save(`visita-${c.apellido}-${v.fecha}.pdf`);
+  const waBtn = $('pdfWhatsapp');
+  if(waBtn) waBtn.onclick = () => shareVisitPDF(doc, c, v);
+}
+
+async function shareVisitPDF(doc, c, v){
+  const filename = `visita-${c.apellido}-${v.fecha}.pdf`;
+  const blob = doc.output('blob');
+  const file = new File([blob], filename, {type:'application/pdf'});
+  const mensaje = `Hola ${c.nombre}, te paso el detalle de la visita del ${fmtDate(v.fecha)} al taller.`;
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file], title:'Comprobante de visita', text: mensaje});
+      return;
+    }catch(e){ /* el usuario canceló o falló, seguimos al fallback */ }
+  }
+  doc.save(filename);
+  window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje + ' (te acabo de descargar el PDF, adjuntalo en el chat)')}`, '_blank');
 }
 
 function closeModal(){ $('modalRoot').innerHTML = ''; }
