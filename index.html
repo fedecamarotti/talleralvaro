@@ -189,7 +189,9 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#18181b; color:#fff; padding:16px 18px; font-weight:700; font-size:19px; text-align:center;}
+.pv-title{background:#262629; color:#fff; padding:16px 18px; text-align:center;}
+.pv-title-main{font-weight:700; font-size:19px; letter-spacing:.02em;}
+.pv-title-sub{font-weight:400; font-size:12.5px; color:#d0d0d0; margin-top:3px;}
 .pv-body{padding:20px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 .pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
@@ -223,7 +225,7 @@ header .actions{display:flex; gap:8px;}
 <div id="mainScreen" class="screen hidden">
   <div class="wrap">
     <header>
-      <h1>Taller</h1>
+      <h1>Fichas clientes</h1>
       <div class="actions">
         <button id="debtorsBtn">Deudores<span class="badge hidden" id="debtorsCount">0</span></button>
         <button id="logoutBtn" class="btn-icon">Salir</button>
@@ -758,14 +760,17 @@ function buildVisitPDF(v, c){
   const pageW = 210, margin = 15, colW = pageW - margin*2;
 
   // título
-  doc.setFillColor(24,24,27);
-  doc.rect(0,0,pageW,18,'F');
+  doc.setFillColor(38,38,41);
+  doc.rect(0,0,pageW,30,'F');
   doc.setTextColor(255,255,255);
-  doc.setFontSize(19);
-  doc.text('Taller Álvaro', pageW/2, 11.5, {align:'center'});
+  doc.setFont(undefined,'bold'); doc.setFontSize(18);
+  doc.text('TALLER ÁLVARO', pageW/2, 12.5, {align:'center'});
+  doc.setFont(undefined,'normal'); doc.setFontSize(10); doc.setTextColor(205,205,205);
+  doc.text('Condor 2660 (CABA)', pageW/2, 19.5, {align:'center'});
+  doc.text('11-6390-4988', pageW/2, 24.5, {align:'center'});
 
   doc.setTextColor(30,30,30);
-  let y = 34;
+  let y = 46;
 
   // datos cliente / vehículo
   doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(120,120,120);
@@ -843,7 +848,11 @@ function visitPreviewHTML(v, c){
     <tr><td>${d.descripcion||''}</td><td class="r">${money(d.repuestos)}</td></tr>
   `).join('');
   return `
-    <div class="pv-title">Taller Álvaro</div>
+    <div class="pv-title">
+      <div class="pv-title-main">TALLER ÁLVARO</div>
+      <div class="pv-title-sub">Condor 2660 (CABA)</div>
+      <div class="pv-title-sub">11-6390-4988</div>
+    </div>
     <div class="pv-body">
       <div class="pv-grid">
         <div><div class="pv-label">Cliente</div><div class="pv-value">${c.nombre} ${c.apellido}</div><div class="pv-sub">${c.telefono||''}</div></div>
