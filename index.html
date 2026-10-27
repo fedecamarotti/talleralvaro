@@ -7,7 +7,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-<meta name="theme-color" content="#2B2A28">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,9 +17,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#2B2A28; --bg2:#38362F; --card:#38362F; --border:#49463C;
-  --text:#F2F0EC; --text2:#ACA89C; --muted:#827F73;
-  --accent:#E8A479; --accent-bg:rgba(232,164,121,.14); --accent-ink:#2B2A28;
+  --bg:#0A0A0A; --bg2:#141414; --card:#161616; --border:#282828;
+  --text:#F5F5F5; --text2:#9A9A9A; --muted:#6E6E6E;
+  --accent:#ECECEC; --accent-bg:rgba(255,255,255,.08); --accent-ink:#0A0A0A;
   --danger:#FF6B5B; --danger-bg:rgba(255,107,91,.16);
   --success:#7BC99A; --success-bg:rgba(123,201,154,.14);
   --radius:14px;
@@ -52,9 +52,9 @@ button{
   transition:background .15s, border-color .15s, transform .1s;
 }
 button:active{transform:scale(.97);}
-button:hover{border-color:#5C584A;}
+button:hover{border-color:#3A3A3A;}
 .btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600;}
-.btn-primary:hover{background:#DC9468;}
+.btn-primary:hover{background:#D4D4D4;}
 .btn-danger{color:var(--danger); border-color:var(--danger-bg);}
 .btn-danger:hover{background:var(--danger-bg);}
 .btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
@@ -91,7 +91,7 @@ header .actions{display:flex; gap:8px;}
   padding:13px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
   transition:border-color .15s;
 }
-.client-card:hover{border-color:#5C584A;}
+.client-card:hover{border-color:#3A3A3A;}
 .avatar{
   width:40px; height:40px; border-radius:50%; background:var(--accent-bg); color:var(--accent);
   display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0;
@@ -199,9 +199,9 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#2B2A28; color:#fff; padding:16px 18px; display:flex; align-items:center; gap:16px;}
+.pv-title{background:#0A0A0A; color:#fff; padding:16px 18px; display:flex; align-items:center; gap:16px;}
 .pv-logo{height:30px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
-.pv-title-info{border-left:1px solid #49463C; padding-left:16px; line-height:1.6;}
+.pv-title-info{border-left:1px solid #282828; padding-left:16px; line-height:1.6;}
 .pv-title-sub{font-weight:400; font-size:11px; color:#dcdad3;}
 .pv-body{padding:20px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
@@ -221,7 +221,7 @@ header .actions{display:flex; gap:8px;}
 .wa-share-btn:hover{background:#0b5744;}
 
 /* logo */
-.login-logo{height:84px; width:auto; object-fit:contain; display:block; margin:0 auto 10px;}
+.login-logo{height:96px; width:auto; object-fit:contain; display:block; margin:0 auto 34px;}
 .header-title{display:flex; align-items:center; gap:10px;}
 .header-logo{height:32px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
 </style>
@@ -231,7 +231,6 @@ header .actions{display:flex; gap:8px;}
 <div id="loginScreen" class="screen">
   <div class="login-box">
     <img class="login-logo" src="images/logo-icon-metal.webp" alt="Taller Álvaro">
-    <h1>Taller Álvaro</h1>
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
     <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button id="loginBtn" class="btn-primary btn-block">Ingresar</button>
@@ -806,14 +805,14 @@ function buildVisitPDF(v, c){
   const pageW = 210, margin = 15, colW = pageW - margin*2;
 
   // título
-  doc.setFillColor(43,42,40);
+  doc.setFillColor(10,10,10);
   doc.rect(0,0,pageW,32,'F');
   let infoX = margin;
   if(logoDataURL){
     const logoH = 13, logoW = logoH * logoAspect;
     doc.addImage(logoDataURL, 'PNG', margin, 32/2 - logoH/2, logoW, logoH);
     infoX = margin + logoW + 10;
-    doc.setDrawColor(73,70,60);
+    doc.setDrawColor(40,40,40);
     doc.line(infoX - 5, 8, infoX - 5, 24);
   } else {
     doc.setTextColor(255,255,255);
