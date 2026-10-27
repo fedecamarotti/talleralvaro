@@ -326,6 +326,14 @@ function fmtDate(iso){
   const [y,m,d] = iso.split('-');
   return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
 }
+function fmtFileDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}-${m}-${y.slice(2)}`;
+}
+function visitFilename(c, v){
+  return `${c.nombre} ${c.apellido} ${fmtFileDate(v.fecha)}.pdf`;
+}
 function initials(nombre, apellido){
   return ((nombre[0]||'')+(apellido[0]||'')).toUpperCase();
 }
@@ -938,24 +946,15 @@ async function exportVisitPDF(v){
       </div>
     </div></div>`;
   $('pdfClose').onclick = closeModal;
-  $('pdfDownload').onclick = () => doc.save(`visita-${c.apellido}-${v.fecha}.pdf`);
+  $('pdfDownload').onclick = () => doc.save(visitFilename(c, v));
   const waBtn = $('pdfWhatsapp');
   if(waBtn) waBtn.onclick = () => shareVisitPDF(doc, c, v);
 }
 
-async function shareVisitPDF(doc, c, v){
-  const filename = `visita-${c.apellido}-${v.fecha}.pdf`;
-  const blob = doc.output('blob');
-  const file = new File([blob], filename, {type:'application/pdf'});
-  const mensaje = `Hola ${c.nombre}, te paso el detalle de la visita del ${fmtDate(v.fecha)} al taller.`;
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({files:[file], title:'Comprobante de visita', text: mensaje});
-      return;
-    }catch(e){ /* el usuario canceló o falló, seguimos al fallback */ }
-  }
-  doc.save(filename);
-  window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje + ' (te acabo de descargar el PDF, adjuntalo en el chat)')}`, '_blank');
+function shareVisitPDF(doc, c, v){
+  doc.save(visitFilename(c, v));
+  const mensaje = `Hola ${c.nombre}, te paso el detalle de la visita del ${fmtDate(v.fecha)} al taller (te adjunto el PDF que se acaba de descargar).`;
+  window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
 function closeModal(){ $('modalRoot').innerHTML = ''; }
