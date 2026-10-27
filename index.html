@@ -953,7 +953,7 @@ async function exportVisitPDF(v){
 
 function shareVisitPDF(doc, c, v){
   doc.save(visitFilename(c, v));
-  const mensaje = `Hola ${c.nombre}, te paso el detalle de la visita del ${fmtDate(v.fecha)} al taller (te adjunto el PDF que se acaba de descargar).`;
+  const mensaje = `Te adjunto el remito por la visita de hoy.`;
   window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
