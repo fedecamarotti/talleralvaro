@@ -60,6 +60,15 @@ button:hover{border-color:#3A3A3A;}
 .btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
 .btn-block{width:100%;}
 .btn-ghost{background:transparent; border:none; color:var(--accent); padding:6px 0; font-size:13.5px; font-weight:500;}
+.btn-new-client{
+  width:100%; background:var(--card); border:1px solid var(--border); color:var(--text);
+  border-radius:30px; padding:8px 18px 8px 8px; font-weight:500; font-size:14px;
+  display:flex; align-items:center; gap:10px; justify-content:center;
+}
+.btn-new-client-icon{
+  width:26px; height:26px; border-radius:50%; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; flex-shrink:0;
+}
 
 /* login */
 #loginScreen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
@@ -87,18 +96,15 @@ header .actions{display:flex; gap:8px;}
 
 /* client list */
 .client-card{
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-  padding:13px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
+  background:var(--card); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:var(--radius);
+  padding:13px 14px 13px 12px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
   transition:border-color .15s;
 }
-.client-card:hover{border-color:#3A3A3A;}
-.avatar{
-  width:40px; height:40px; border-radius:50%; background:var(--accent-bg); color:var(--accent);
-  display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0;
-}
+.client-card:hover{border-top-color:#3A3A3A; border-right-color:#3A3A3A; border-bottom-color:#3A3A3A;}
 .client-info{flex:1; min-width:0;}
 .client-info .name{font-weight:600; font-size:14.5px;}
 .client-info .sub{font-size:12.5px; color:var(--text2); margin-top:1px;}
+.card-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
 .debt-pill{
   font-size:11.5px; background:var(--danger-bg); color:var(--danger); padding:3px 9px;
   border-radius:8px; white-space:nowrap; font-weight:500;
@@ -123,7 +129,6 @@ header .actions{display:flex; gap:8px;}
   padding:16px 18px; margin-bottom:20px;
 }
 .client-card-big .row1{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
-.client-card-big .avatar{width:46px; height:46px; font-size:14px; flex-shrink:0;}
 .client-card-big .name{font-weight:600; font-size:16px;}
 .client-card-big .phone{font-size:13px; color:var(--text2); margin-top:2px;}
 .client-card-big .row1b{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
@@ -254,7 +259,7 @@ header .actions{display:flex; gap:8px;}
     <div class="search-wrap">
       <input id="searchInput" placeholder="Buscar por nombre o apellido">
     </div>
-    <button id="newClientBtn" class="btn-primary btn-block" style="margin-bottom:16px;">+ Nuevo cliente</button>
+    <button id="newClientBtn" class="btn-new-client" style="margin-bottom:16px;"><span class="btn-new-client-icon">+</span>Nuevo cliente</button>
     <div id="clientList"></div>
   </div>
 </div>
@@ -427,13 +432,14 @@ function renderClientList(){
   }
   el.innerHTML = list.map(c => `
     <div class="client-card" data-id="${c.id}">
-      <div class="avatar">${initials(c.nombre||'', c.apellido||'')}</div>
       <div class="client-info">
         <div class="name">${c.nombre} ${c.apellido}</div>
         <div class="sub">${c.auto||''}${c.patente ? ' · <span class="mono">'+c.patente+'</span>' : ''}</div>
       </div>
-      ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe <span class="mono">${money(c.totalDebe)}</span></div>` : ''}
-      ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><img src="images/wa-icon.webp" alt="WhatsApp"></button>` : ''}
+      <div class="card-right">
+        ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe <span class="mono">${money(c.totalDebe)}</span></div>` : ''}
+        ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><img src="images/wa-icon.webp" alt="WhatsApp"></button>` : ''}
+      </div>
     </div>`).join('');
   el.querySelectorAll('.client-card').forEach(card => {
     card.onclick = (e) => { if(e.target.closest('.wa-btn')) return; openFicha(card.dataset.id); };
@@ -477,7 +483,6 @@ function renderClientCard(){
   $('clientCard').innerHTML = `
     <div class="client-card-big">
       <div class="row1">
-        <div class="avatar">${initials(c.nombre||'', c.apellido||'')}</div>
         <div style="flex:1;">
           <div class="name">${c.nombre} ${c.apellido}</div>
           <div class="phone">${c.telefono||''}</div>
