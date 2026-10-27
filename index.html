@@ -7,7 +7,7 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-<meta name="theme-color" content="#E6EBEF">
+<meta name="theme-color" content="#2B2A28">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,11 +17,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#E6EBEF; --bg2:#F3F6F8; --card:#FFFFFF; --border:#D7DEE3;
-  --text:#122330; --text2:#5B6B78; --muted:#8697A3;
-  --accent:#0F3D5C; --accent-bg:rgba(15,61,92,.09);
-  --danger:#C0392B; --danger-bg:rgba(192,57,43,.1);
-  --success:#0F6E56; --success-bg:rgba(15,110,86,.1);
+  --bg:#2B2A28; --bg2:#38362F; --card:#38362F; --border:#49463C;
+  --text:#F2F0EC; --text2:#ACA89C; --muted:#827F73;
+  --accent:#E8A479; --accent-bg:rgba(232,164,121,.14); --accent-ink:#2B2A28;
+  --danger:#FF6B5B; --danger-bg:rgba(255,107,91,.16);
+  --success:#7BC99A; --success-bg:rgba(123,201,154,.14);
   --radius:14px;
   --font-sans:'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -52,9 +52,9 @@ button{
   transition:background .15s, border-color .15s, transform .1s;
 }
 button:active{transform:scale(.97);}
-button:hover{border-color:#b9c3cb;}
-.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;}
-.btn-primary:hover{background:#0c324c;}
+button:hover{border-color:#5C584A;}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600;}
+.btn-primary:hover{background:#DC9468;}
 .btn-danger{color:var(--danger); border-color:var(--danger-bg);}
 .btn-danger:hover{background:var(--danger-bg);}
 .btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
@@ -83,7 +83,7 @@ header .actions{display:flex; gap:8px;}
 
 /* search */
 .search-wrap{margin-bottom:14px;}
-#searchInput{background:var(--bg2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="%236f6f78" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.5" y1="10.5" x2="15" y2="15"/></svg>') no-repeat 12px center; padding-left:36px;}
+#searchInput{background:var(--bg2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="%23ACA89C" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.5" y1="10.5" x2="15" y2="15"/></svg>') no-repeat 12px center; padding-left:36px;}
 
 /* client list */
 .client-card{
@@ -91,7 +91,7 @@ header .actions{display:flex; gap:8px;}
   padding:13px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
   transition:border-color .15s;
 }
-.client-card:hover{border-color:#b9c3cb;}
+.client-card:hover{border-color:#5C584A;}
 .avatar{
   width:40px; height:40px; border-radius:50%; background:var(--accent-bg); color:var(--accent);
   display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0;
@@ -199,9 +199,10 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#262629; color:#fff; padding:16px 16px 14px; text-align:center;}
-.pv-logo{height:34px; width:auto; object-fit:contain; display:block; margin:0 auto 7px;}
-.pv-title-sub{font-weight:400; font-size:10.5px; color:#d0d0d0;}
+.pv-title{background:#2B2A28; color:#fff; padding:16px 18px; display:flex; align-items:center; gap:16px;}
+.pv-logo{height:30px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
+.pv-title-info{border-left:1px solid #49463C; padding-left:16px; line-height:1.6;}
+.pv-title-sub{font-weight:400; font-size:11px; color:#dcdad3;}
 .pv-body{padding:20px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 .pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
@@ -805,18 +806,23 @@ function buildVisitPDF(v, c){
   const pageW = 210, margin = 15, colW = pageW - margin*2;
 
   // título
-  doc.setFillColor(38,38,41);
+  doc.setFillColor(43,42,40);
   doc.rect(0,0,pageW,32,'F');
+  let infoX = margin;
   if(logoDataURL){
-    const logoH = 15, logoW = logoH * logoAspect;
-    doc.addImage(logoDataURL, 'PNG', pageW/2 - logoW/2, 6, logoW, logoH);
+    const logoH = 13, logoW = logoH * logoAspect;
+    doc.addImage(logoDataURL, 'PNG', margin, 32/2 - logoH/2, logoW, logoH);
+    infoX = margin + logoW + 10;
+    doc.setDrawColor(73,70,60);
+    doc.line(infoX - 5, 8, infoX - 5, 24);
   } else {
     doc.setTextColor(255,255,255);
     doc.setFont(undefined,'bold'); doc.setFontSize(16);
-    doc.text('TALLER ÁLVARO', pageW/2, 15, {align:'center'});
+    doc.text('TALLER ÁLVARO', margin, 18);
   }
-  doc.setFont(undefined,'normal'); doc.setFontSize(9); doc.setTextColor(205,205,205);
-  doc.text('Condor 2660 (CABA)  ·  11-6390-4988', pageW/2, 26, {align:'center'});
+  doc.setFont(undefined,'normal'); doc.setFontSize(9.5); doc.setTextColor(220,218,211);
+  doc.text('Condor 2660 (CABA)', infoX, 14);
+  doc.text('11-6390-4988', infoX, 21);
 
   doc.setTextColor(30,30,30);
   let y = 48;
@@ -899,7 +905,10 @@ function visitPreviewHTML(v, c){
   return `
     <div class="pv-title">
       <img class="pv-logo" src="images/logo-remito-cream.webp" alt="Taller Álvaro">
-      <div class="pv-title-sub">Condor 2660 (CABA) · 11-6390-4988</div>
+      <div class="pv-title-info">
+        <div class="pv-title-sub">Condor 2660 (CABA)</div>
+        <div class="pv-title-sub">11-6390-4988</div>
+      </div>
     </div>
     <div class="pv-body">
       <div class="pv-grid">
