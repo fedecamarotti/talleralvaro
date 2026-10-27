@@ -199,10 +199,9 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#262629; color:#fff; padding:14px 16px; display:flex; align-items:center; gap:12px;}
-.pv-logo{height:38px; width:auto; object-fit:contain; flex-shrink:0; display:block;}
-.pv-title-main{font-weight:700; font-size:15px; letter-spacing:.02em; line-height:1.25;}
-.pv-title-sub{font-weight:400; font-size:10.5px; color:#d0d0d0; margin-top:2px;}
+.pv-title{background:#262629; color:#fff; padding:16px 16px 14px; text-align:center;}
+.pv-logo{height:34px; width:auto; object-fit:contain; display:block; margin:0 auto 7px;}
+.pv-title-sub{font-weight:400; font-size:10.5px; color:#d0d0d0;}
 .pv-body{padding:20px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 .pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
@@ -221,7 +220,7 @@ header .actions{display:flex; gap:8px;}
 .wa-share-btn:hover{background:#0b5744;}
 
 /* logo */
-.login-logo{height:62px; width:auto; object-fit:contain; display:block; margin:0 auto 14px;}
+.login-logo{height:58px; width:auto; object-fit:contain; display:block; margin:0 auto 28px;}
 .header-title{display:flex; align-items:center; gap:10px;}
 .header-logo{height:32px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
 </style>
@@ -230,8 +229,7 @@ header .actions{display:flex; gap:8px;}
 
 <div id="loginScreen" class="screen">
   <div class="login-box">
-    <img class="login-logo" src="images/logo.webp" alt="Taller Álvaro">
-    <h1>Taller Álvaro</h1>
+    <img class="login-logo" src="images/logo-web-navy.webp" alt="Taller Álvaro">
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
     <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button id="loginBtn" class="btn-primary btn-block">Ingresar</button>
@@ -243,7 +241,7 @@ header .actions{display:flex; gap:8px;}
   <div class="wrap">
     <header>
       <div class="header-title">
-        <img class="header-logo" src="images/logo.webp" alt="Taller Álvaro">
+        <img class="header-logo" src="images/logo-icon-navy.webp" alt="Taller Álvaro">
         <h1>Fichas clientes</h1>
       </div>
       <div class="actions">
@@ -301,7 +299,7 @@ let unsubClients = null, unsubVisits = null;
 let detailCount = 0;
 
 /* ---------- LOGO (para el PDF) ---------- */
-let logoDataURL = null, logoAspect = 1.1726; // ancho/alto del logo original, por si no carga a tiempo
+let logoDataURL = null, logoAspect = 2.367; // ancho/alto del logo original, por si no carga a tiempo
 const logoReady = new Promise(resolve => {
   const img = new Image();
   img.onload = () => {
@@ -315,7 +313,7 @@ const logoReady = new Promise(resolve => {
     resolve();
   };
   img.onerror = () => resolve();
-  img.src = 'images/logo.webp';
+  img.src = 'images/logo-remito-cream.webp';
 });
 
 const $ = id => document.getElementById(id);
@@ -807,21 +805,20 @@ function buildVisitPDF(v, c){
 
   // título
   doc.setFillColor(38,38,41);
-  doc.rect(0,0,pageW,30,'F');
-  doc.setTextColor(255,255,255);
-  let titleX = margin;
+  doc.rect(0,0,pageW,32,'F');
   if(logoDataURL){
-    const logoH = 16, logoW = logoH * logoAspect;
-    doc.addImage(logoDataURL, 'PNG', margin, 7, logoW, logoH);
-    titleX = margin + logoW + 6;
+    const logoH = 15, logoW = logoH * logoAspect;
+    doc.addImage(logoDataURL, 'PNG', pageW/2 - logoW/2, 6, logoW, logoH);
+  } else {
+    doc.setTextColor(255,255,255);
+    doc.setFont(undefined,'bold'); doc.setFontSize(16);
+    doc.text('TALLER ÁLVARO', pageW/2, 15, {align:'center'});
   }
-  doc.setFont(undefined,'bold'); doc.setFontSize(13);
-  doc.text('TALLER ÁLVARO', titleX, 14.5);
-  doc.setFont(undefined,'normal'); doc.setFontSize(9.5); doc.setTextColor(205,205,205);
-  doc.text('Condor 2660 (CABA)  ·  11-6390-4988', titleX, 20);
+  doc.setFont(undefined,'normal'); doc.setFontSize(9); doc.setTextColor(205,205,205);
+  doc.text('Condor 2660 (CABA)  ·  11-6390-4988', pageW/2, 26, {align:'center'});
 
   doc.setTextColor(30,30,30);
-  let y = 46;
+  let y = 48;
 
   // datos cliente / vehículo
   doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(120,120,120);
@@ -900,11 +897,8 @@ function visitPreviewHTML(v, c){
   `).join('');
   return `
     <div class="pv-title">
-      <img class="pv-logo" src="images/logo.webp" alt="Taller Álvaro">
-      <div>
-        <div class="pv-title-main">TALLER ÁLVARO</div>
-        <div class="pv-title-sub">Condor 2660 (CABA) · 11-6390-4988</div>
-      </div>
+      <img class="pv-logo" src="images/logo-remito-cream.webp" alt="Taller Álvaro">
+      <div class="pv-title-sub">Condor 2660 (CABA) · 11-6390-4988</div>
     </div>
     <div class="pv-body">
       <div class="pv-grid">
