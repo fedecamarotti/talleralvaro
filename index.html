@@ -461,6 +461,7 @@ $('backBtn').onclick = () => {
   if(unsubVisits) unsubVisits();
   $('fichaScreen').classList.add('hidden');
   $('mainScreen').classList.remove('hidden');
+  window.scrollTo(0, 0);
 };
 
 /* ---------- FICHA ---------- */
@@ -468,6 +469,7 @@ function openFicha(id){
   currentClientId = id;
   $('mainScreen').classList.add('hidden');
   $('fichaScreen').classList.remove('hidden');
+  window.scrollTo(0, 0);
   renderClientCard();
   if(unsubVisits) unsubVisits();
   unsubVisits = db.collection('clientes').doc(id).collection('visitas')
@@ -663,6 +665,7 @@ async function deleteClient(id){
   currentClientId = null;
   $('fichaScreen').classList.add('hidden');
   $('mainScreen').classList.remove('hidden');
+  window.scrollTo(0, 0);
 }
 
 /* ---------- VISIT MODAL ---------- */
