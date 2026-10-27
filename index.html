@@ -7,30 +7,36 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-<meta name="theme-color" content="#0e0e11">
+<meta name="theme-color" content="#E6EBEF">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Taller">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0e0e11; --bg2:#17171c; --card:#1c1c22; --border:#2a2a31;
-  --text:#f2f2f0; --text2:#a3a3ab; --muted:#6f6f78;
-  --accent:#4f8cff; --accent-bg:rgba(79,140,255,.12);
-  --danger:#e2504a; --danger-bg:rgba(226,80,74,.14);
-  --success:#3fae6a; --success-bg:rgba(63,174,106,.14);
-  --radius:12px;
+  --bg:#E6EBEF; --bg2:#F3F6F8; --card:#FFFFFF; --border:#D7DEE3;
+  --text:#122330; --text2:#5B6B78; --muted:#8697A3;
+  --accent:#0F3D5C; --accent-bg:rgba(15,61,92,.09);
+  --danger:#C0392B; --danger-bg:rgba(192,57,43,.1);
+  --success:#0F6E56; --success-bg:rgba(15,110,86,.1);
+  --radius:14px;
+  --font-sans:'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 body{
   background:var(--bg); color:var(--text); min-height:100vh;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-family:var(--font-sans);
   -webkit-font-smoothing:antialiased;
 }
 .hidden{display:none !important;}
+.mono{font-family:var(--font-mono); letter-spacing:.01em;}
 .wrap{max-width:640px; margin:0 auto; padding:20px 16px 80px;}
-h1{font-size:20px; font-weight:600; letter-spacing:-.01em;}
-h2{font-size:15px; font-weight:600; color:var(--text2);}
+h1{font-size:19px; font-weight:600; letter-spacing:-.01em;}
+h2{font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.04em;}
 input, textarea{
   width:100%; background:var(--bg2); border:1px solid var(--border); color:var(--text);
   border-radius:10px; padding:11px 13px; font-size:15px; outline:none; font-family:inherit;
@@ -38,22 +44,22 @@ input, textarea{
 }
 input:focus, textarea:focus{border-color:var(--accent);}
 textarea{resize:vertical; min-height:60px;}
-label{display:block; font-size:12px; color:var(--muted); margin:14px 0 6px;}
+label{display:block; font-size:12px; color:var(--muted); margin:14px 0 6px; font-weight:500;}
 label:first-child{margin-top:0;}
 button{
   font-family:inherit; cursor:pointer; border-radius:10px; border:1px solid var(--border);
-  background:var(--bg2); color:var(--text); font-size:14px; padding:10px 16px;
+  background:var(--card); color:var(--text); font-size:14px; padding:10px 16px; font-weight:500;
   transition:background .15s, border-color .15s, transform .1s;
 }
 button:active{transform:scale(.97);}
-button:hover{border-color:#3a3a42;}
-.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:500;}
-.btn-primary:hover{background:#3f7ce0;}
+button:hover{border-color:#b9c3cb;}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;}
+.btn-primary:hover{background:#0c324c;}
 .btn-danger{color:var(--danger); border-color:var(--danger-bg);}
 .btn-danger:hover{background:var(--danger-bg);}
 .btn-icon{padding:7px 9px; font-size:13px; line-height:1;}
 .btn-block{width:100%;}
-.btn-ghost{background:transparent; border:none; color:var(--accent); padding:6px 0; font-size:13.5px;}
+.btn-ghost{background:transparent; border:none; color:var(--accent); padding:6px 0; font-size:13.5px; font-weight:500;}
 
 /* login */
 #loginScreen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
@@ -85,13 +91,13 @@ header .actions{display:flex; gap:8px;}
   padding:13px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer;
   transition:border-color .15s;
 }
-.client-card:hover{border-color:#3a3a42;}
+.client-card:hover{border-color:#b9c3cb;}
 .avatar{
   width:40px; height:40px; border-radius:50%; background:var(--accent-bg); color:var(--accent);
   display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0;
 }
 .client-info{flex:1; min-width:0;}
-.client-info .name{font-weight:500; font-size:14.5px;}
+.client-info .name{font-weight:600; font-size:14.5px;}
 .client-info .sub{font-size:12.5px; color:var(--text2); margin-top:1px;}
 .debt-pill{
   font-size:11.5px; background:var(--danger-bg); color:var(--danger); padding:3px 9px;
@@ -102,7 +108,7 @@ header .actions{display:flex; gap:8px;}
   width:30px; height:30px; border-radius:50%; background:var(--success-bg); color:var(--success);
   display:flex; align-items:center; justify-content:center; flex-shrink:0; border:none; font-size:16px;
 }
-.wa-btn:hover{background:rgba(63,174,106,.25);}
+.wa-btn:hover{background:rgba(15,110,86,.18);}
 
 /* ficha */
 #backBtn{
@@ -138,7 +144,7 @@ header .actions{display:flex; gap:8px;}
 .visit-km{font-size:11.5px; background:var(--accent-bg); color:var(--accent); padding:2px 8px; border-radius:8px; margin-top:6px; display:inline-block;}
 .detail-row{display:flex; justify-content:space-between; font-size:13.5px; padding:5px 0; color:var(--text);}
 .detail-row .d{color:var(--text2);}
-.visit-notas{font-size:13px; color:var(--text2); background:var(--bg); border-radius:8px; padding:9px 11px; margin:6px 0 4px; white-space:pre-wrap;}
+.visit-notas{font-size:13px; color:var(--text2); background:var(--bg2); border-radius:8px; padding:9px 11px; margin:6px 0 4px; white-space:pre-wrap;}
 .visit-nums{margin:2px 0 8px;}
 .visit-nums div{display:flex; justify-content:space-between; font-size:13.5px; color:var(--text2); padding:5px 0;}
 .visit-nums div span:last-child{color:var(--text);}
@@ -183,7 +189,7 @@ header .actions{display:flex; gap:8px;}
 .check-icon.ok{color:var(--success);}
 .check-icon.bad{color:var(--danger);}
 .detail-item{
-  background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px;
   position:relative;
 }
 .detail-item .rm{
@@ -192,9 +198,10 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#262629; color:#fff; padding:16px 18px; text-align:center;}
-.pv-title-main{font-weight:700; font-size:19px; letter-spacing:.02em;}
-.pv-title-sub{font-weight:400; font-size:12.5px; color:#d0d0d0; margin-top:3px;}
+.pv-title{background:#262629; color:#fff; padding:14px 16px; display:flex; align-items:center; gap:12px;}
+.pv-logo{height:38px; width:auto; object-fit:contain; flex-shrink:0; display:block;}
+.pv-title-main{font-weight:700; font-size:15px; letter-spacing:.02em; line-height:1.25;}
+.pv-title-sub{font-weight:400; font-size:10.5px; color:#d0d0d0; margin-top:2px;}
 .pv-body{padding:20px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 .pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
@@ -210,13 +217,19 @@ header .actions{display:flex; gap:8px;}
 .pv-total-row.big{font-size:18px; font-weight:700; color:#1a1a1a;}
 .pv-total-row.debt{color:#c0392b; font-weight:500;}
 .wa-share-btn{background:var(--success); border-color:var(--success); color:#fff; font-weight:500;}
-.wa-share-btn:hover{background:#379a5c;}
+.wa-share-btn:hover{background:#0b5744;}
+
+/* logo */
+.login-logo{height:62px; width:auto; object-fit:contain; display:block; margin:0 auto 14px;}
+.header-title{display:flex; align-items:center; gap:10px;}
+.header-logo{height:32px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
 </style>
 </head>
 <body>
 
 <div id="loginScreen" class="screen">
   <div class="login-box">
+    <img class="login-logo" src="images/logo.webp" alt="Taller Álvaro">
     <h1>Taller Álvaro</h1>
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
     <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
@@ -228,7 +241,10 @@ header .actions{display:flex; gap:8px;}
 <div id="mainScreen" class="screen hidden">
   <div class="wrap">
     <header>
-      <h1>Fichas clientes</h1>
+      <div class="header-title">
+        <img class="header-logo" src="images/logo.webp" alt="Taller Álvaro">
+        <h1>Fichas clientes</h1>
+      </div>
       <div class="actions">
         <button id="debtorsBtn">Deudores<span class="badge hidden" id="debtorsCount">0</span></button>
         <button id="logoutBtn" class="btn-icon">Salir</button>
@@ -282,6 +298,24 @@ let currentVisits = [];
 let deudoresOnly = false;
 let unsubClients = null, unsubVisits = null;
 let detailCount = 0;
+
+/* ---------- LOGO (para el PDF) ---------- */
+let logoDataURL = null, logoAspect = 1.1726; // ancho/alto del logo original, por si no carga a tiempo
+const logoReady = new Promise(resolve => {
+  const img = new Image();
+  img.onload = () => {
+    logoAspect = img.naturalWidth / img.naturalHeight;
+    try{
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      logoDataURL = canvas.toDataURL('image/png');
+    }catch(e){ /* si falla, el PDF se genera sin logo */ }
+    resolve();
+  };
+  img.onerror = () => resolve();
+  img.src = 'images/logo.webp';
+});
 
 const $ = id => document.getElementById(id);
 const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -387,9 +421,9 @@ function renderClientList(){
       <div class="avatar">${initials(c.nombre||'', c.apellido||'')}</div>
       <div class="client-info">
         <div class="name">${c.nombre} ${c.apellido}</div>
-        <div class="sub">${c.auto||''}${c.patente ? ' · '+c.patente : ''}</div>
+        <div class="sub">${c.auto||''}${c.patente ? ' · <span class="mono">'+c.patente+'</span>' : ''}</div>
       </div>
-      ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+      ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe <span class="mono">${money(c.totalDebe)}</span></div>` : ''}
       ${isValidPhone(c.telefono) ? `<button class="wa-btn" data-wa="${c.telefono}" aria-label="Abrir WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.478 1.34 4.995L2 22l5.116-1.341a9.958 9.958 0 0 0 4.888 1.34h.004c5.514 0 9.997-4.483 9.997-9.997 0-2.67-1.04-5.18-2.929-7.069a9.935 9.935 0 0 0-7.072-2.93zm0 18.198a8.185 8.185 0 0 1-4.166-1.14l-.299-.177-3.106.815.83-3.03-.194-.31a8.194 8.194 0 0 1-1.264-4.36c0-4.527 3.684-8.211 8.213-8.211a8.16 8.16 0 0 1 5.807 2.406 8.156 8.156 0 0 1 2.404 5.809c-.001 4.528-3.685 8.198-8.225 8.198z"/></svg></button>` : ''}
     </div>`).join('');
   el.querySelectorAll('.client-card').forEach(card => {
@@ -442,7 +476,7 @@ function renderClientCard(){
         ${isValidPhone(c.telefono) ? `<button class="wa-btn" id="waFichaBtn" aria-label="Abrir WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2.003c-5.514 0-9.997 4.483-9.997 9.997 0 1.762.462 3.478 1.34 4.995L2 22l5.116-1.341a9.958 9.958 0 0 0 4.888 1.34h.004c5.514 0 9.997-4.483 9.997-9.997 0-2.67-1.04-5.18-2.929-7.069a9.935 9.935 0 0 0-7.072-2.93zm0 18.198a8.185 8.185 0 0 1-4.166-1.14l-.299-.177-3.106.815.83-3.03-.194-.31a8.194 8.194 0 0 1-1.264-4.36c0-4.527 3.684-8.211 8.213-8.211a8.16 8.16 0 0 1 5.807 2.406 8.156 8.156 0 0 1 2.404 5.809c-.001 4.528-3.685 8.198-8.225 8.198z"/></svg></button>` : ''}
       </div>
       <div class="row1b">
-        ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe ${money(c.totalDebe)}</div>` : ''}
+        ${(c.totalDebe||0) > 0 ? `<div class="debt-pill">Debe <span class="mono">${money(c.totalDebe)}</span></div>` : ''}
         <div class="card-actions">
           <button class="btn-icon" id="editClientBtn">Editar</button>
           <button class="btn-icon btn-danger" id="delClientBtn">Eliminar</button>
@@ -453,7 +487,7 @@ function renderClientCard(){
         <div><div class="field-label">Año</div><div class="field-value">${c.anio||'—'}</div></div>
       </div>
       <div class="row2" style="margin-top:10px;">
-        <div><div class="field-label">Patente</div><div class="field-value">${c.patente||'—'}</div></div>
+        <div><div class="field-label">Patente</div><div class="field-value mono">${c.patente||'—'}</div></div>
       </div>
     </div>`;
   $('editClientBtn').onclick = () => openClientModal(c);
@@ -473,7 +507,7 @@ function renderVisits(){
       <div class="visit-top">
         <div>
           <div class="visit-date">${fmtDate(v.fecha)}</div>
-          ${v.km ? `<div class="visit-km">${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
+          ${v.km ? `<div class="visit-km mono">${parseInt(v.km).toLocaleString('es-AR')} km</div>` : ''}
         </div>
         <div class="card-actions">
           <button class="btn-icon" data-pdf="${v.id}">PDF</button>
@@ -482,16 +516,16 @@ function renderVisits(){
         </div>
       </div>
       ${(v.detalles||[]).map(d => `
-        <div class="detail-row"><span class="d">${d.descripcion||''}</span><span>${money(d.repuestos)}</span></div>
+        <div class="detail-row"><span class="d">${d.descripcion||''}</span><span class="mono">${money(d.repuestos)}</span></div>
       `).join('')}
       ${v.notas ? `<div class="visit-notas">${v.notas}</div>` : ''}
       <div class="visit-nums">
-        <div><span>Mano de obra</span><span>${money(v.manoObra)}</span></div>
+        <div><span>Mano de obra</span><span class="mono">${money(v.manoObra)}</span></div>
       </div>
-      <div class="visit-total"><span>Total</span><span>${money(v.total)}</span></div>
+      <div class="visit-total"><span>Total</span><span class="mono">${money(v.total)}</span></div>
       <div class="visit-pay ${v.debe > 0 ? 'debt' : 'paid'}">
-        <span>Pagó ${money(v.pago)}</span>
-        <span>${v.debe > 0 ? 'Debe ' + money(v.debe) : 'Pagado'}</span>
+        <span>Pagó <span class="mono">${money(v.pago)}</span></span>
+        <span>${v.debe > 0 ? 'Debe <span class="mono">' + money(v.debe) + '</span>' : 'Pagado'}</span>
       </div>
     </div>`).join('');
   el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openVisitModal(currentVisits.find(v => v.id === b.dataset.edit)));
@@ -513,7 +547,7 @@ function openPaymentModal(){
       </div>
       <p style="color:var(--text2); font-size:13px; margin-bottom:6px;">Se aplica a la deuda de ${c?.nombre||''} ${c?.apellido||''}, empezando por las visitas más antiguas.</p>
       <label>Fecha</label><input id="pFecha" type="date" value="${today}">
-      <label>Pagó</label><input id="pMonto" inputmode="numeric" placeholder="$0">
+      <label>Pagó</label><input id="pMonto" class="mono" inputmode="numeric" placeholder="$0">
       <p class="error" id="pError"></p>
       <div class="modal-actions">
         <button id="pSave" class="btn-primary">Guardar</button>
@@ -564,7 +598,7 @@ function openClientModal(c){
       </div>
       <label>Auto</label><input id="mAuto" value="${c?.auto||''}">
       <label>Año</label><input id="mAnio" inputmode="numeric" value="${c?.anio||''}" placeholder="Ej: 2019">
-      <label>Patente</label><input id="mPatente" value="${(c?.patente||'').toUpperCase()}">
+      <label>Patente</label><input id="mPatente" class="mono" value="${(c?.patente||'').toUpperCase()}">
       <p class="error" id="mError"></p>
       <div class="modal-actions">
         <button id="mSave" class="btn-primary">Guardar</button>
@@ -623,7 +657,7 @@ function detailRowHtml(idx, desc, rep){
     <div class="detail-item" data-idx="${idx}">
       <button type="button" class="rm" data-rm="${idx}">Quitar</button>
       <label>Detalle</label><input class="detDesc" data-idx="${idx}" value="${desc||''}" placeholder="Ej: correa de distribución">
-      <label>Valor repuestos</label><input class="detRep" data-idx="${idx}" placeholder="$0">
+      <label>Valor repuestos</label><input class="detRep mono" data-idx="${idx}" placeholder="$0">
     </div>`;
 }
 
@@ -639,14 +673,14 @@ function openVisitModal(v){
         <button type="button" class="modal-close" id="vClose">&times;</button>
       </div>
       <label>Fecha</label><input id="vFecha" type="date" value="${v?.fecha||today}">
-      <label>Kilómetros</label><input id="vKm" inputmode="numeric" placeholder="Ej: 127.000">
+      <label>Kilómetros</label><input id="vKm" class="mono" inputmode="numeric" placeholder="Ej: 127.000">
       <label style="margin-top:18px;">Detalles</label>
       <div id="detailsList"></div>
       <button type="button" class="btn-ghost" id="addDetailBtn">+ Agregar detalle</button>
       <label>Notas</label><textarea id="vNotas" placeholder="Observaciones, recomendaciones, etc.">${v?.notas||''}</textarea>
-      <label>Mano de obra</label><input id="vMano" inputmode="numeric" placeholder="$0">
-      <div class="totalPreview"><span>Total</span><span id="vTotalPreview">$0</span></div>
-      <label>Pagó</label><input id="vPago" inputmode="numeric" placeholder="$0">
+      <label>Mano de obra</label><input id="vMano" class="mono" inputmode="numeric" placeholder="$0">
+      <div class="totalPreview"><span>Total</span><span id="vTotalPreview" class="mono">$0</span></div>
+      <label>Pagó</label><input id="vPago" class="mono" inputmode="numeric" placeholder="$0">
       <p class="error" id="vError"></p>
       <div class="modal-actions">
         <button id="vSave" class="btn-primary">Guardar</button>
@@ -766,11 +800,16 @@ function buildVisitPDF(v, c){
   doc.setFillColor(38,38,41);
   doc.rect(0,0,pageW,30,'F');
   doc.setTextColor(255,255,255);
-  doc.setFont(undefined,'bold'); doc.setFontSize(18);
-  doc.text('TALLER ÁLVARO', pageW/2, 12.5, {align:'center'});
-  doc.setFont(undefined,'normal'); doc.setFontSize(10); doc.setTextColor(205,205,205);
-  doc.text('Condor 2660 (CABA)', pageW/2, 19.5, {align:'center'});
-  doc.text('11-6390-4988', pageW/2, 24.5, {align:'center'});
+  let titleX = margin;
+  if(logoDataURL){
+    const logoH = 16, logoW = logoH * logoAspect;
+    doc.addImage(logoDataURL, 'PNG', margin, 7, logoW, logoH);
+    titleX = margin + logoW + 6;
+  }
+  doc.setFont(undefined,'bold'); doc.setFontSize(13);
+  doc.text('TALLER ÁLVARO', titleX, 14.5);
+  doc.setFont(undefined,'normal'); doc.setFontSize(9.5); doc.setTextColor(205,205,205);
+  doc.text('Condor 2660 (CABA)  ·  11-6390-4988', titleX, 20);
 
   doc.setTextColor(30,30,30);
   let y = 46;
@@ -852,9 +891,11 @@ function visitPreviewHTML(v, c){
   `).join('');
   return `
     <div class="pv-title">
-      <div class="pv-title-main">TALLER ÁLVARO</div>
-      <div class="pv-title-sub">Condor 2660 (CABA)</div>
-      <div class="pv-title-sub">11-6390-4988</div>
+      <img class="pv-logo" src="images/logo.webp" alt="Taller Álvaro">
+      <div>
+        <div class="pv-title-main">TALLER ÁLVARO</div>
+        <div class="pv-title-sub">Condor 2660 (CABA) · 11-6390-4988</div>
+      </div>
     </div>
     <div class="pv-body">
       <div class="pv-grid">
@@ -879,9 +920,10 @@ function visitPreviewHTML(v, c){
     </div>`;
 }
 
-function exportVisitPDF(v){
+async function exportVisitPDF(v){
   const c = allClients.find(x => x.id === currentClientId);
   if(!c || !v) return;
+  await logoReady;
   const doc = buildVisitPDF(v, c);
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal pdf-modal">
