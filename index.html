@@ -205,8 +205,8 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#fff; padding:14px 18px; display:flex; align-items:center; justify-content:center;}
-.pv-logo{height:52px; width:auto; object-fit:contain; display:block;}
+.pv-title{background:#fff; padding:8px 18px; display:flex; align-items:center; justify-content:center;}
+.pv-logo{height:44px; width:auto; object-fit:contain; display:block;}
 .pv-divider{border-top:1px solid #e6e6e6; margin:0 22px;}
 .pv-body{padding:16px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
@@ -799,27 +799,20 @@ function confirmDelete(label, onConfirm){
   $('cConfirm').onclick = async () => { await onConfirm(); closeModal(); };
 }
 
-async function buildVisitPNG(v, c){
-  await logoReady;
-  const wrap = document.createElement('div');
-  // Posicionado dentro del viewport (no muy lejos a la izquierda) para que
-  // algunos navegadores móviles no lo descarten al renderizar; queda oculto
-  // detrás del resto del contenido gracias al z-index negativo.
-  wrap.style.position = 'fixed';
-  wrap.style.top = '0';
-  wrap.style.left = '0';
-  wrap.style.zIndex = '-1';
-  wrap.style.pointerEvents = 'none';
-  wrap.style.width = '480px';
-  wrap.style.background = '#fff';
-  wrap.innerHTML = visitPreviewHTML(v, c);
-  document.body.appendChild(wrap);
-  const img = wrap.querySelector('img.pv-logo');
-  if(img && !img.complete){
-    await new Promise(res => { img.onload = res; img.onerror = res; });
-  }
-  const canvas = await html2canvas(wrap, { scale:2, backgroundColor:'#ffffff', useCORS:true });
-  document.body.removeChild(wrap);
+async function buildVisitPNG(){
+  // Capturamos el elemento de la vista previa que ya está visible en el modal
+  // (en vez de un clon oculto fuera de pantalla, que en algunos navegadores
+  // móviles se renderiza en blanco). Como ya está en pantalla, las fuentes
+  // y la imagen del logo ya están cargadas.
+  const el = $('pdfPreviewEl');
+  if(!el) return null;
+  const prevMaxHeight = el.style.maxHeight, prevOverflow = el.style.overflowY;
+  el.style.maxHeight = 'none';
+  el.style.overflowY = 'visible';
+  await new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+  const canvas = await html2canvas(el, { scale:2, backgroundColor:'#ffffff', useCORS:true });
+  el.style.maxHeight = prevMaxHeight;
+  el.style.overflowY = prevOverflow;
   return new Promise(resolve => canvas.toBlob(blob => resolve(blob), 'image/png'));
 }
 
@@ -879,7 +872,7 @@ async function exportVisitPDF(v){
         <h2>Comprobante de visita</h2>
         <button type="button" class="modal-close" id="pdfClose">&times;</button>
       </div>
-      <div class="pdf-preview">${visitPreviewHTML(v, c)}</div>
+      <div class="pdf-preview" id="pdfPreviewEl">${visitPreviewHTML(v, c)}</div>
       <div class="modal-actions">
         <button id="pdfDownload">Descargar</button>
         ${isValidPhone(c.telefono) ? `<button id="pdfWhatsapp" class="wa-share-btn">Enviar por WhatsApp</button>` : ''}
@@ -887,16 +880,16 @@ async function exportVisitPDF(v){
     </div></div>`;
   $('pdfClose').onclick = closeModal;
   $('pdfDownload').onclick = async () => {
-    const blob = await buildVisitPNG(v, c);
-    downloadBlob(blob, visitFilename(c, v));
+    const blob = await buildVisitPNG();
+    if(blob) downloadBlob(blob, visitFilename(c, v));
   };
   const waBtn = $('pdfWhatsapp');
   if(waBtn) waBtn.onclick = () => shareVisitPDF(c, v);
 }
 
 async function shareVisitPDF(c, v){
-  const blob = await buildVisitPNG(v, c);
-  downloadBlob(blob, visitFilename(c, v));
+  const blob = await buildVisitPNG();
+  if(blob) downloadBlob(blob, visitFilename(c, v));
   const mensaje = `Te adjunto el remito por la visita de hoy.`;
   window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
