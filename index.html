@@ -887,9 +887,7 @@ async function exportVisitPDF(v){
   if(waBtn) waBtn.onclick = () => shareVisitPDF(c, v);
 }
 
-async function shareVisitPDF(c, v){
-  const blob = await buildVisitPNG();
-  if(blob) downloadBlob(blob, visitFilename(c, v));
+function shareVisitPDF(c, v){
   const mensaje = `Te adjunto el remito por la visita de hoy.`;
   window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
