@@ -284,7 +284,7 @@ header .actions{display:flex; gap:8px;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBjxBmNOL72N2r4QzlT6MQUNooNvEivFss",
@@ -338,7 +338,7 @@ function fmtFileDate(iso){
   return `${d}-${m}-${y.slice(2)}`;
 }
 function visitFilename(c, v){
-  return `${c.nombre} ${c.apellido} ${fmtFileDate(v.fecha)}.pdf`;
+  return `${c.nombre} ${c.apellido} ${fmtFileDate(v.fecha)}.png`;
 }
 function initials(nombre, apellido){
   return ((nombre[0]||'')+(apellido[0]||'')).toUpperCase();
@@ -808,102 +808,32 @@ function confirmDelete(label, onConfirm){
   $('cConfirm').onclick = async () => { await onConfirm(); closeModal(); };
 }
 
-function buildVisitPDF(v, c){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:'mm', format:'a4' });
-  const pageW = 210, margin = 15, colW = pageW - margin*2;
-
-  // título
-  doc.setFillColor(10,10,10);
-  doc.rect(0,0,pageW,32,'F');
-  let infoX = margin;
-  if(logoDataURL){
-    const logoH = 17, logoW = logoH * logoAspect;
-    doc.addImage(logoDataURL, 'PNG', margin, 32/2 - logoH/2, logoW, logoH);
-    infoX = margin + logoW + 10;
-    doc.setDrawColor(40,40,40);
-    doc.line(infoX - 5, 8, infoX - 5, 24);
-  } else {
-    doc.setTextColor(255,255,255);
-    doc.setFont(undefined,'bold'); doc.setFontSize(16);
-    doc.text('TALLER ÁLVARO', margin, 18);
+async function buildVisitPNG(v, c){
+  await logoReady;
+  const wrap = document.createElement('div');
+  wrap.style.position = 'fixed';
+  wrap.style.left = '-9999px';
+  wrap.style.top = '0';
+  wrap.style.width = '480px';
+  wrap.style.background = '#fff';
+  wrap.innerHTML = visitPreviewHTML(v, c);
+  document.body.appendChild(wrap);
+  const img = wrap.querySelector('img.pv-logo');
+  if(img && !img.complete){
+    await new Promise(res => { img.onload = res; img.onerror = res; });
   }
-  doc.setFont(undefined,'normal'); doc.setFontSize(8); doc.setTextColor(220,218,211);
-  doc.text('Condor 2660 (CABA)', infoX, 14);
-  doc.text('11-6390-4988', infoX, 21);
+  const canvas = await html2canvas(wrap, { scale:2, backgroundColor:'#ffffff', useCORS:true });
+  document.body.removeChild(wrap);
+  return canvas.toDataURL('image/png');
+}
 
-  doc.setTextColor(30,30,30);
-  let y = 48;
-
-  // datos cliente / vehículo
-  doc.setFont(undefined,'bold'); doc.setFontSize(10); doc.setTextColor(120,120,120);
-  doc.text('CLIENTE', margin, y);
-  doc.text('VEHÍCULO', margin+colW/2, y);
-  y += 7;
-  doc.setFont(undefined,'normal'); doc.setFontSize(14); doc.setTextColor(30,30,30);
-  doc.text(`${c.nombre} ${c.apellido}`, margin, y);
-  doc.text(`${c.auto||'—'}`, margin+colW/2, y);
-  y += 6.5;
-  doc.setFontSize(11.5); doc.setTextColor(90,90,90);
-  doc.text(c.telefono||'', margin, y);
-  doc.text(`${c.patente||''}${c.anio ? '  ·  '+c.anio : ''}`, margin+colW/2, y);
-  y += 6.5;
-  doc.text(`Fecha: ${fmtDate(v.fecha)}`, margin, y);
-  if(v.km) doc.text(`Kilometraje: ${parseInt(v.km).toLocaleString('es-AR')} km`, margin+colW/2, y);
-  y += 11;
-
-  // tabla
-  doc.setFillColor(235,235,235);
-  doc.rect(margin, y, colW, 9, 'F');
-  doc.setFont(undefined,'bold'); doc.setFontSize(11.5); doc.setTextColor(50,50,50);
-  doc.text('DETALLE', margin+3, y+6);
-  doc.text('VALOR', margin+colW-3, y+6, {align:'right'});
-  y += 9;
-
-  doc.setFont(undefined,'normal'); doc.setFontSize(12.5); doc.setTextColor(30,30,30);
-  (v.detalles||[]).forEach(d => {
-    y += 9;
-    doc.text(d.descripcion||'', margin+3, y);
-    doc.text(money(d.repuestos), margin+colW-3, y, {align:'right'});
-    doc.setDrawColor(225,225,225);
-    doc.line(margin, y+3.2, margin+colW, y+3.2);
-  });
-  y += 9;
-  doc.text('Mano de obra', margin+3, y);
-  doc.text(money(v.manoObra), margin+colW-3, y, {align:'right'});
-  doc.setDrawColor(225,225,225);
-  doc.line(margin, y+3.2, margin+colW, y+3.2);
-  y += 11;
-
-  // notas
-  if(v.notas){
-    doc.setFont(undefined,'italic'); doc.setFontSize(10.5); doc.setTextColor(100,100,100);
-    const lines = doc.splitTextToSize(v.notas, colW-6);
-    doc.text(lines, margin+3, y);
-    y += lines.length*5 + 6;
-  }
-
-  // totales
-  y += 4;
-  const boxW = 85, boxX = margin+colW-boxW;
-  doc.setDrawColor(210,210,210);
-  doc.line(boxX, y, boxX+boxW, y);
-  y += 8;
-  doc.setFont(undefined,'bold'); doc.setFontSize(14); doc.setTextColor(30,30,30);
-  doc.text('Total', boxX, y);
-  doc.text(money(v.total), boxX+boxW, y, {align:'right'});
-  y += 8;
-  doc.setFont(undefined,'normal'); doc.setFontSize(12); doc.setTextColor(80,80,80);
-  doc.text('Pagó', boxX, y);
-  doc.text(money(v.pago), boxX+boxW, y, {align:'right'});
-  if(v.debe > 0){
-    y += 7;
-    doc.setTextColor(190,60,55);
-    doc.text('Debe', boxX, y);
-    doc.text(money(v.debe), boxX+boxW, y, {align:'right'});
-  }
-
-  return doc;
+function downloadDataURL(dataURL, filename){
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function visitPreviewHTML(v, c){
@@ -945,7 +875,6 @@ async function exportVisitPDF(v){
   const c = allClients.find(x => x.id === currentClientId);
   if(!c || !v) return;
   await logoReady;
-  const doc = buildVisitPDF(v, c);
   $('modalRoot').innerHTML = `
     <div class="modal-bg"><div class="modal pdf-modal">
       <div class="modal-head">
@@ -959,13 +888,17 @@ async function exportVisitPDF(v){
       </div>
     </div></div>`;
   $('pdfClose').onclick = closeModal;
-  $('pdfDownload').onclick = () => doc.save(visitFilename(c, v));
+  $('pdfDownload').onclick = async () => {
+    const dataURL = await buildVisitPNG(v, c);
+    downloadDataURL(dataURL, visitFilename(c, v));
+  };
   const waBtn = $('pdfWhatsapp');
-  if(waBtn) waBtn.onclick = () => shareVisitPDF(doc, c, v);
+  if(waBtn) waBtn.onclick = () => shareVisitPDF(c, v);
 }
 
-function shareVisitPDF(doc, c, v){
-  doc.save(visitFilename(c, v));
+async function shareVisitPDF(c, v){
+  const dataURL = await buildVisitPNG(v, c);
+  downloadDataURL(dataURL, visitFilename(c, v));
   const mensaje = `Te adjunto el remito por la visita de hoy.`;
   window.open(`${waLink(c.telefono)}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
