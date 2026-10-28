@@ -205,24 +205,25 @@ header .actions{display:flex; gap:8px;}
 }
 .pdf-modal{max-width:600px;}
 .pdf-preview{background:#fff; color:#1a1a1a; border-radius:10px; overflow:hidden; max-height:62vh; overflow-y:auto; border:1px solid var(--border);}
-.pv-title{background:#0A0A0A; color:#fff; padding:16px 18px; display:flex; align-items:center; gap:16px;}
-.pv-logo{height:40px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
-.pv-title-info{border-left:1px solid #282828; padding-left:16px; line-height:1.6;}
-.pv-title-sub{font-weight:400; font-size:9.5px; color:#dcdad3;}
-.pv-body{padding:20px 18px;}
+.pv-title{background:#fff; padding:26px 18px 16px; text-align:center;}
+.pv-logo{height:52px; width:auto; object-fit:contain; display:block; margin:0 auto;}
+.pv-divider{border-top:1px solid #e6e6e6; margin:0 22px;}
+.pv-body{padding:16px 18px;}
 .pv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-.pv-label{font-size:11px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px;}
-.pv-value{font-size:16px; font-weight:500;}
-.pv-sub{font-size:13.5px; color:#777; margin-top:2px;}
-.pv-table{width:100%; border-collapse:collapse; margin-top:16px;}
-.pv-table td{padding:10px 4px; border-bottom:1px solid #eee; font-size:15px;}
+.pv-label{font-size:9px; color:#999; text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px;}
+.pv-value{font-size:12.5px; font-weight:500;}
+.pv-sub{font-size:10.5px; color:#777; margin-top:1px;}
+.pv-table{width:100%; border-collapse:collapse; margin-top:12px;}
+.pv-table td{padding:7px 4px; border-bottom:1px solid #eee; font-size:11px;}
 .pv-table td.r{text-align:right;}
-.pv-thead td{background:#ebebeb; font-weight:700; font-size:13px; color:#555;}
-.pv-notas{background:#f5f5f5; border-radius:8px; padding:12px 14px; font-size:14px; color:#555; margin-top:14px; white-space:pre-wrap; font-style:italic;}
-.pv-totals{margin-top:16px; border-top:2px solid #eee; padding-top:12px;}
-.pv-total-row{display:flex; justify-content:space-between; font-size:15px; color:#666; padding:5px 0;}
-.pv-total-row.big{font-size:18px; font-weight:700; color:#1a1a1a;}
+.pv-thead td{background:#ebebeb; font-weight:700; font-size:9.5px; color:#555;}
+.pv-notas{background:#f5f5f5; border-radius:8px; padding:9px 11px; font-size:10.5px; color:#555; margin-top:10px; white-space:pre-wrap; font-style:italic;}
+.pv-totals{margin-top:12px; border-top:2px solid #eee; padding-top:9px;}
+.pv-total-row{display:flex; justify-content:space-between; font-size:11px; color:#666; padding:3px 0;}
+.pv-total-row.big{font-size:13px; font-weight:700; color:#1a1a1a;}
 .pv-total-row.debt{color:#c0392b; font-weight:500;}
+.pv-footer{padding:12px 18px 18px; text-align:center; display:flex; justify-content:center; gap:8px; font-size:8.5px; color:#999;}
+.pv-footer .sep{color:#ddd;}
 .wa-share-btn{background:var(--success); border-color:var(--success); color:#fff; font-weight:500;}
 .wa-share-btn:hover{background:#0b5744;}
 
@@ -305,22 +306,12 @@ let deudoresOnly = false;
 let unsubClients = null, unsubVisits = null;
 let detailCount = 0;
 
-/* ---------- LOGO (para el PDF) ---------- */
-let logoDataURL = null, logoAspect = 2.367; // ancho/alto del logo original, por si no carga a tiempo
+/* ---------- LOGO (precarga para el remito) ---------- */
 const logoReady = new Promise(resolve => {
   const img = new Image();
-  img.onload = () => {
-    logoAspect = img.naturalWidth / img.naturalHeight;
-    try{
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      logoDataURL = canvas.toDataURL('image/png');
-    }catch(e){ /* si falla, el PDF se genera sin logo */ }
-    resolve();
-  };
-  img.onerror = () => resolve();
-  img.src = 'images/logo-remito-cream.webp';
+  img.onload = resolve;
+  img.onerror = resolve;
+  img.src = 'images/logo-remito-black.webp';
 });
 
 const $ = id => document.getElementById(id);
@@ -842,18 +833,15 @@ function visitPreviewHTML(v, c){
   `).join('');
   return `
     <div class="pv-title">
-      <img class="pv-logo" src="images/logo-remito-cream.webp" alt="Taller Álvaro">
-      <div class="pv-title-info">
-        <div class="pv-title-sub">Condor 2660 (CABA)</div>
-        <div class="pv-title-sub">11-6390-4988</div>
-      </div>
+      <img class="pv-logo" src="images/logo-remito-black.webp" alt="Taller Álvaro">
     </div>
+    <div class="pv-divider"></div>
     <div class="pv-body">
       <div class="pv-grid">
         <div><div class="pv-label">Cliente</div><div class="pv-value">${c.nombre} ${c.apellido}</div><div class="pv-sub">${c.telefono||''}</div></div>
         <div><div class="pv-label">Vehículo</div><div class="pv-value">${c.auto||'—'}</div><div class="pv-sub">${c.patente||''}${c.anio ? ' · '+c.anio : ''}</div></div>
       </div>
-      <div class="pv-grid" style="margin-top:10px;">
+      <div class="pv-grid" style="margin-top:8px;">
         <div><div class="pv-label">Fecha</div><div class="pv-value">${fmtDate(v.fecha)}</div></div>
         ${v.km ? `<div><div class="pv-label">Kilometraje</div><div class="pv-value">${parseInt(v.km).toLocaleString('es-AR')} km</div></div>` : ''}
       </div>
@@ -868,6 +856,9 @@ function visitPreviewHTML(v, c){
         <div class="pv-total-row"><span>Pagó</span><span>${money(v.pago)}</span></div>
         ${v.debe > 0 ? `<div class="pv-total-row debt"><span>Debe</span><span>${money(v.debe)}</span></div>` : ''}
       </div>
+    </div>
+    <div class="pv-footer">
+      <span>Condor 2660 (CABA)</span><span class="sep">|</span><span>11-6390-4988</span>
     </div>`;
 }
 
