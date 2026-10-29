@@ -235,7 +235,7 @@ header .actions{display:flex; gap:8px;}
 </head>
 <body>
 
-<div id="loginScreen" class="screen">
+<div id="loginScreen" class="screen hidden">
   <div class="login-box">
     <img class="login-logo" src="images/logo-wordmark-light.webp" alt="Taller Álvaro">
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
@@ -245,7 +245,7 @@ header .actions{display:flex; gap:8px;}
   </div>
 </div>
 
-<div id="mainScreen" class="screen hidden">
+<div id="mainScreen" class="screen">
   <div class="wrap">
     <header>
       <div class="header-title">
@@ -380,7 +380,14 @@ $('loginBtn').onclick = () => {
 };
 $('logoutBtn').onclick = () => auth.signOut();
 
+// Si ya había sesión iniciada, no mostramos el login mientras Firebase confirma
+try{
+  if(localStorage.getItem('ta_logged') !== '1') $('mainScreen').classList.add('hidden');
+  else $('loginScreen').classList.add('hidden');
+}catch(e){ $('mainScreen').classList.add('hidden'); }
+
 auth.onAuthStateChanged(user => {
+  try{ localStorage.setItem('ta_logged', user ? '1' : '0'); }catch(e){}
   if(user){
     $('loginScreen').classList.add('hidden');
     $('mainScreen').classList.remove('hidden');
