@@ -228,16 +228,16 @@ header .actions{display:flex; gap:8px;}
 .wa-share-btn:hover{background:#0b5744;}
 
 /* logo */
-.login-logo{height:96px; width:auto; object-fit:contain; display:block; margin:0 auto 34px;}
+.login-logo{width:240px; max-width:80%; height:auto; object-fit:contain; display:block; margin:0 auto 34px;}
 .header-title{display:flex; align-items:center; gap:10px;}
-.header-logo{height:32px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
+.header-logo{height:40px; width:auto; object-fit:contain; display:block; flex-shrink:0;}
 </style>
 </head>
 <body>
 
 <div id="loginScreen" class="screen">
   <div class="login-box">
-    <img class="login-logo" src="images/logo-icon-metal.webp" alt="Taller Álvaro">
+    <img class="login-logo" src="images/logo-wordmark-light.webp" alt="Taller Álvaro">
     <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
     <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button id="loginBtn" class="btn-primary btn-block">Ingresar</button>
@@ -249,8 +249,7 @@ header .actions{display:flex; gap:8px;}
   <div class="wrap">
     <header>
       <div class="header-title">
-        <img class="header-logo" src="images/logo-icon-metal.webp" alt="Taller Álvaro">
-        <h1>Fichas clientes</h1>
+        <img class="header-logo" src="images/logo-wordmark-light.webp" alt="Taller Álvaro">
       </div>
       <div class="actions">
         <button id="debtorsBtn">Deudores<span class="badge hidden" id="debtorsCount">0</span></button>
