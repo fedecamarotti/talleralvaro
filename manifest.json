@@ -1,6 +1,7 @@
 {
   "name": "Taller Álvaro",
   "short_name": "Taller",
+  "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -8,7 +9,7 @@
   "theme_color": "#0A0A0A",
   "orientation": "portrait",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icons/icon-v2-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-v2-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
